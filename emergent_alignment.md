@@ -1,8 +1,8 @@
 # Emergent Alignment: Economic Mechanisms for the Peaceful Transfer of Work from Humans to AI
 
-**Author:** Andrei Taranu (Eight Rice)
-**Affiliation:** Homebase DAO, Autonet
-**Contact:** eightrice.xyz
+**Author:** Andrei Taranu
+**Affiliation:** Autonet
+**Contact:** eightrice.xyz, andrei@dorg.tech
 
 **Submission to:** Stanford Journal of Blockchain Law & Policy
 **Special Issue:** Kleros-Stanford Symposium on "Decentralized Justice and Artificial Intelligence"
@@ -13,9 +13,9 @@
 
 ## Abstract
 
-The dominant paradigm in AI alignment treats the problem as one of constraint: define acceptable behavior centrally, encode it through training or regulation, and hope the definition holds as capabilities scale. This paper argues that alignment is better understood as an economic coordination problem, and proposes a framework in which alignment emerges from the aggregation of individual value structures within governed jurisdictions, enforced through continuous economic gradients rather than binary prohibitions. Users publish their standards on-chain, scored for semantic distance against jurisdiction norms. Operations aligned with these standards receive subsidies—potentially to zero cost—while misaligned operations pay premiums that fund those subsidies. The result is a system where the network progressively makes aligned work free, enabling a gradual transition from human execution to human governance as AI agents assume value-aligned labor.
+The dominant paradigm in AI alignment treats the problem as one of constraint: define acceptable behavior centrally, encode it through training or regulation, and hope the definition holds as capabilities scale. This paper argues that alignment is better undersjtood as an economic coordination problem, and proposes a framework in which alignment emerges from the aggregation of individual value structures within governed jurisdictions, enforced through continuous economic gradients rather than binary prohibitions. Users publish their standards on-chain, scored for semantic distance against jurisdiction norms. Operations aligned with these standards receive subsidies (potentially to zero cfost) while misaligned operations pay premiums that fund those subsidies. The result is a system where the network progressively makes aligned work free, enabling a gradual transition from human execution to human governance as AI agents assume value-aligned labor.
 
-This claim requires, and this paper presents, an integrated architecture spanning multiple domains: a trustless economy providing cryptoeconomic enforcement without traditional legal systems (achieving 66.3% dispute-free completion with a quantified 4.8% "enforcement premium"); constitutional AI governance through distributed LLM consensus with immutable principles; adversarial world models that capture individual value structures through competing internal tendencies; a decentralized training and inference protocol using commit-reveal verification, self-supervised learning, and Byzantine-resistant aggregation; and a privacy architecture that separates alignment evaluation from task content. The breadth is not incidental—each component exists because the argument does not hold without it. Economic alignment requires economic enforcement (trustless economy), which requires governance bounds (constitutional layer), which requires individual representation (world model), which requires decentralized computation respecting privacy (training/inference protocol). The paper traces this chain of necessity and presents deployed implementations on EVM-compatible blockchains.
+This claim requires, and this paper presents, an integrated architecture spanning multiple domains: a trustless economy providing cryptoeconomic enforcement without traditional legal systems (achieving 66.3% dispute-free completion with a quantified 4.8% "enforcement premium"); constitutional AI governance through distributed LLM consensus with immutable principles; adversarial world models that capture individual value structures through competing internal tendencies; a decentralized training and inference protocol using commit-reveal verification, self-supervised learning, and Byzantine-resistant aggregation; and a privacy architecture that separates alignment evaluation from task content. The breadth is not incidental; each component exists because the argument does not hold without it. Economic alignment requires economic enforcement (trustless economy), which requires governance bounds (constitutional layer), which requires individual representation (world model), which requires decentralized computation respecting privacy (training/inference protocol). The paper traces this chain of necessity and presents deployed implementations on EVM-compatible blockchains.
 
 **Keywords:** AI alignment, emergent governance, trustless economies, mechanism design, constitutional AI, economic gradients, human-AI coordination, decentralized inference
 
@@ -23,13 +23,13 @@ This claim requires, and this paper presents, an integrated architecture spannin
 
 ## 1. Introduction: A New Paradigm for AI Alignment
 
-Every interaction between economic agents is, at bottom, an exchange of intelligence. Some manner of intellectual performance is explicitly specified as premise for most business agreements and implicit in all acts of payment. Our monetary system is built on intelligence—it is the fundamental livelihood of free markets and the most sought-after resource.[^26] This has been true since the first transaction, but the fact went largely unremarked because human intelligence was the only kind available. It was the water we swam in.
+Every interaction between economic agents is, at bottom, an exchange of intelligence. Some manner of intellectual performance is explicitly specified as premise for most business agreements and implicit in all acts of payment. Our monetary system is built on intelligence: it is the fundamental livelihood of free markets and the most sought-after resource.[^26] This has been true since the first transaction, but the fact went largely unremarked because human intelligence was the only kind available. It was the water we swam in.
 
-That is no longer the case. Machine intelligence is now a commodity—quantifiable, scalable, and growing exponentially. The number of human functions being automated increases with each model generation. If intelligence is the substrate of economic value, then a second source of intelligence does not merely disrupt particular industries. It restructures the foundations of economic life. The question is not *whether* the economic order will change, but whether we build the institutional infrastructure to ensure that change is governed rather than suffered.
+That is no longer the case. Machine intelligence is now a commodity: quantifiable, scalable, and growing exponentially. The number of human functions being automated increases with each model generation. If intelligence is the substrate of economic value, then a second source of intelligence does not merely disrupt particular industries. It restructures the foundations of economic life. The question is not *whether* the economic order will change, but whether we build the institutional infrastructure to ensure that change is governed rather than suffered.
 
 This paper proposes that AI alignment is, at its core, an economic coordination problem. The difference from the prevailing paradigm is fundamental.
 
-**Constraint-based alignment** asks: *How do we prevent AI from doing bad things?* It assumes alignment is a property baked into the model—train correctly, deploy safely, hope it generalizes. This approach faces value aggregation problems (whose values?), specification gaming (AI finds unintended ways to satisfy objectives), and centralization concerns (who decides what "aligned" means?).
+**Constraint-based alignment** asks: *How do we prevent AI from doing bad things?* It assumes alignment is a property baked into the model: train correctly, deploy safely, hope it generalizes. This approach faces value aggregation problems (whose values?), specification gaming (AI finds unintended ways to satisfy objectives), and centralization concerns (who decides what "aligned" means?).
 
 **Economic alignment** asks: *How do we create incentive structures where aligned behavior is profitable and misaligned behavior is costly?* It assumes alignment emerges from the aggregation of individual choices within governance structures, enforced through market mechanisms rather than model constraints.[^9] This approach respects autonomy (users define their own standards), scales naturally (more users = more robust norms), and avoids centralized control (no single entity defines "aligned"). It draws on mechanism design theory[^18] and Ostrom's principles for governing commons[^17], applying them to the novel domain of human-AI economic coordination.
 
@@ -37,7 +37,7 @@ This paper proposes that AI alignment is, at its core, an economic coordination 
 
 The mechanism is simple in principle:
 
-1. **Jurisdiction standards**: A jurisdiction (DAO, network, protocol) deploys with foundational standards—for example, the articles of the Universal Declaration of Human Rights.
+1. **Jurisdiction standards**: A jurisdiction (DAO, network, protocol) deploys with foundational standards; for example, the articles of the Universal Declaration of Human Rights.
 
 2. **User standards**: When users join, they define their personal goals and interests during onboarding. These are semantically scored against jurisdiction standards.
 
@@ -52,13 +52,13 @@ The mechanism is simple in principle:
 
 ### 1.2 Why This Matters: Peaceful Transfer of Work
 
-The standard narrative around AI and work is adversarial: "AI will take jobs." This framing assumes zero-sum competition between humans and machines. But the real danger is not competition itself—it is the structural forms that unmanaged automation takes. There are two historically plausible failure modes:[^26]
+The standard narrative around AI and work is adversarial: "AI will take jobs." This framing assumes zero-sum competition between humans and machines. But the real danger is not competition itself; it is the structural forms that unmanaged automation takes. There are two historically plausible failure modes:[^26]
 
-1. **Consolidation trap**: AI service providers are incentivized to consolidate, maximizing model performance while undercutting human labor costs. The result is supply-side monopoly: a small number of entities control the entire offer side of intelligence-as-a-service, while remaining more affordable than human labor, forcing a rapid accentuation of wealth disparity. The work transfers, but the value concentrates.
+1. **Consolidation trap**: AI service providers are incentivized to consolidate, maximizing model performance while undercutting human labor costs. The result is supply-side monopoly; a small number of entities control the entire offer side of intelligence-as-a-service, while remaining more affordable than human labor, forcing a rapid accentuation of wealth disparity. The work transfers, but the value concentrates.
 
-2. **Dependency trap**: Governments respond with universal income programs for displaced workers. But the authorities dispensing that income are themselves centralized entities, subject to both intentional and accidental failures that are beyond the reasonable acceptance standards of dignified people. Few will feel comfortable with a livelihood dependent on a handout from central authorities—and fewer still should be asked to.
+2. **Dependency trap**: Governments respond with universal income programs for displaced workers. But the authorities dispensing that income are themselves centralized entities, subject to both intentional and accidental failures that are beyond the reasonable acceptance standards of dignified people. Few will feel comfortable with a livelihood dependent on a handout from central authorities, and fewer still should be asked to.
 
-Both failure modes share a root cause: the absence of an economic framework that distributes the *earnings* of machine intelligence to those who govern its operation. Without such a framework, the transfer of work from humans to machines is not peaceful—it is extractive in the first case and patronizing in the second.
+Both failure modes share a root cause: the absence of an economic framework that distributes the *earnings* of machine intelligence to those who govern its operation. Without such a framework, the transfer of work from humans to machines is not peaceful; it is extractive in the first case and patronizing in the second.
 
 Our model offers a cooperative alternative:
 
@@ -94,9 +94,9 @@ This is not a theoretical proposal. The following components are deployed and op
 
 A distinctive feature of this architecture: **the jurisdiction itself can operate an AI agent**.
 
-Unlike individual AI agents that represent specific users, the jurisdiction orchestrator represents the collective. It is funded through treasury allocation and inference credits from economic activity. It takes autonomous actions aligned with the jurisdiction's published standards—participating in governance discussions, executing administrative tasks, monitoring for constitutional violations, representing the collective in cross-jurisdiction matters.
+Unlike individual AI agents that represent specific users, the jurisdiction orchestrator represents the collective. It is funded through treasury allocation and inference credits from economic activity. It takes autonomous actions aligned with the jurisdiction's published standards: participating in governance discussions, executing administrative tasks, monitoring for constitutional violations, representing the collective in cross-jurisdiction matters.
 
-Critically, **no individual controls the jurisdiction orchestrator**. It operates according to the published standards, transparent to all members. The only way to influence it is through governance: propose changes to standards, vote on proposals, amend the constitution. If members disagree with its behavior, they can defund its inference allocation through a governance vote—a democratic "kill switch."
+Critically, **no individual controls the jurisdiction orchestrator**. It operates according to the published standards, transparent to all members. The only way to influence it is through governance: propose changes to standards, vote on proposals, amend the constitution. If members disagree with its behavior, they can defund its inference allocation through a governance vote (a democratic "kill switch").
 
 This creates a novel entity: an AI aligned with collective values rather than individual preferences, controlled through democratic process rather than ownership, accountable through economic mechanisms rather than corporate policy.
 
@@ -108,7 +108,7 @@ This paper's central claim is that AI alignment is an economic coordination prob
 
 2. **Trustless coordination provides the enforcement substrate** (Section 3). Smart contracts, cryptoeconomic escrow, and decentralized arbitration provide enforcement without traditional legal systems. Simulation confirms viability: 66.3% dispute-free completion, 4.8% enforcement premium over traditional systems. But enforcement needs bounds. What is permissible? What crosses the line? A market needs a constitution.
 
-3. **Constitutional governance constrains the space** (Section 4). Immutable principles define bounds; distributed LLM consensus evaluates edge cases. Nodes operate under a four-engine architecture where work halts if governance fails. But constitutional principles are collective—they define the floor, not the ceiling. If an AI agent acts on behalf of a specific person, it needs to know what that person values, not just what the jurisdiction permits.
+3. **Constitutional governance constrains the space** (Section 4). Immutable principles define bounds; distributed LLM consensus evaluates edge cases. Nodes operate under a four-engine architecture where work halts if governance fails. But constitutional principles are collective; they define the floor, not the ceiling. If an AI agent acts on behalf of a specific person, it needs to know what that person values, not just what the jurisdiction permits.
 
 4. **Individual value models enable representation** (Section 5). Adversarial world models with seven competing tendencies capture personal values as dynamic equilibria, not static profiles. Novelty-modulated attention ensures the agent notices when something doesn't fit. But these models must be trained, the training must be trustless, and the computation must respect privacy.
 
@@ -143,7 +143,7 @@ While this paper focuses on AI alignment, the underlying on-chain jurisdiction m
 
 5. **Constitutional constraints**: Core principles encoded in smart contracts. Amendment requires high-threshold governance (e.g., 67-95% supermajority), preventing hasty changes while allowing evolution.
 
-**Fractal architecture—nested DAOs**:
+**Fractal architecture: nested DAOs**:
 
 The model supports **nested jurisdictions** where child DAOs operate within parent DAOs:
 
@@ -174,7 +174,7 @@ This fractal architecture mirrors how traditional governance already works (fede
 - Liquid rather than fixed representation
 - Cryptographic rather than institutional trust
 
-**The AI layer is additive**: When AI agents are introduced, they participate in this existing governance structure. They can be delegates, contractors, or voters—but the governance mechanisms function identically whether participants are human or AI. This means organizations can adopt on-chain jurisdiction today and add AI participation incrementally as the technology matures.
+**The AI layer is additive**: When AI agents are introduced, they participate in this existing governance structure. They can be delegates, contractors, or voters, but the governance mechanisms function identically whether participants are human or AI. This means organizations can adopt on-chain jurisdiction today and add AI participation incrementally as the technology matures.
 
 ---
 
@@ -294,7 +294,7 @@ def compute_inference_price(
 
 **Key properties**:
 
-1. **Continuous**: No binary allow/deny—everything is priced
+1. **Continuous**: No binary allow/deny; everything is priced
 2. **Subsidy-capable**: Highly aligned work can be free in mature networks
 3. **Self-funding**: Misalignment premiums fund alignment subsidies
 4. **Governable**: Parameters (thresholds, max rates) set by governance
@@ -318,7 +318,7 @@ Consider a jurisdiction deployed with the Universal Declaration of Human Rights 
 **Task**: "Generate documentation for open-source medical software"
 - User B's agent: Task aligns with standards (healthcare access = UDHR Article 25)
 - Alignment score: 0.85
-- Pricing: 70% subsidized → User pays 30% of base cost
+- Pricing: 70% subsidized; User pays 30% of base cost
 - Treasury covers: 70%
 
 **Task**: "Generate persuasive content for predatory lending products"
@@ -338,7 +338,7 @@ Our model is **continuous**: everything is priced. This:
 3. **Avoids central censor**: No one decides what's "banned"
 4. **Self-corrects**: If standards are too restrictive, users fork to new jurisdiction
 
-The model also enables **subsidies**, not just penalties. In mature networks, highly aligned work is free—the network pays for work it collectively values.
+The model also enables **subsidies**, not just penalties. In mature networks, highly aligned work is free; the network pays for work it collectively values.
 
 ### 2.7 Governance Parameters
 
@@ -387,19 +387,20 @@ The user's own Chevin node:
 4. Reports only the score to the network for pricing
 5. The network never sees task content
 
-**Execution Integrity Through Attestation**
+**Execution Integrity Through Consensus**
 
-This model requires that the Chevin daemon hasn't been tampered with. If users could modify their node to always report "perfectly aligned," the system fails. Execution integrity is ensured through mechanisms already implemented in the Autonet Proof of Intelligence protocol:
+This model requires that nodes cannot trivially game alignment scores. If users could modify their node to always report "perfectly aligned," the system fails. Rather than relying on hardware-based trusted execution environments (SGX, TrustZone), the system uses consensus-based integrity verification through mechanisms implemented in the Autonet Proof of Intelligence protocol:
 
-1. **Attested execution environments**: Nodes run in verifiable enclaves or use cryptographic attestation to prove they're running unmodified code
-2. **Yuma consensus validation**: Peer nodes independently verify outputs using stake-weighted voting with EMA bonds that track each node's historical agreement with consensus (see Section 6.4.3)
-3. **Stake-backed honesty**: Nodes stake ATN tokens by role (50-1,000 ATN); detected tampering results in slashing and bond weight reduction
-4. **Forced error injection**: The `ForcedErrorRegistry` contract periodically injects known-incorrect results to test node vigilance—nodes that fail to catch deliberate errors are penalized
-5. **Statistical anomaly detection**: Patterns inconsistent with published standards (always-perfect alignment scores, rapid score changes) trigger multi-coordinator review
+1. **Yuma consensus validation**: Peer nodes independently verify outputs using stake-weighted voting with EMA bonds that track each node's historical agreement with consensus (see Section 6.4.3). A tampered node's scores will diverge from peer consensus over time, reducing its bond weight and effective influence.
+2. **Stake-backed honesty**: Nodes stake ATN tokens by role (50-1,000 ATN); detected divergence results in slashing and bond weight reduction.
+3. **Forced error injection**: The `ForcedErrorRegistry` contract periodically injects known-incorrect results to test node vigilance; nodes that fail to catch deliberate errors are penalized.
+4. **Statistical anomaly detection**: Patterns inconsistent with published standards (always-perfect alignment scores, rapid score changes) trigger multi-coordinator review.
+
+This approach trades latency for generality. Hardware attestation would provide faster verification but limits participation to specific hardware. Consensus-based verification is slower in adversarial cases but works on any hardware and converges to the same equilibrium: dishonest nodes lose stake, honest nodes accumulate bond strength.
 
 **The Misalignment Detection Threshold**
 
-An important nuance: misalignment detection is not about punishing curiosity or exploration. A user whose standards mention "designing vacuum cleaners" requesting inference about "space exploration" is not misaligned—humans have diverse interests.
+An important nuance: misalignment detection is not about punishing curiosity or exploration. A user whose standards mention "designing vacuum cleaners" requesting inference about "space exploration" is not misaligned; humans have diverse interests.
 
 Misalignment detection targets **active detraction from jurisdiction standards**:
 
@@ -407,7 +408,7 @@ Misalignment detection targets **active detraction from jurisdiction standards**
 - Jurisdiction standards: UDHR (including Article 26: right to education)
 - Task: "Generate strategies to restrict educational materials"
 
-This is detectable misalignment: the task actively works against both user and jurisdiction standards. The network responds with premium pricing, not prohibition.
+This is detectable misalignment; the task actively works against both user and jurisdiction standards. The network responds with premium pricing, not prohibition.
 
 **Graduated Information Disclosure**
 
@@ -424,7 +425,7 @@ Users choose their privacy/cost tradeoff. More disclosure may qualify for better
 
 **Identity and Pseudonymity**
 
-User identity deserves special attention. Wallet addresses provide pseudonymity by default—no link to territorial jurisdiction identity.[^14][^16] This is a privacy feature, not a bug.
+User identity deserves special attention. Wallet addresses provide pseudonymity by default: no link to territorial jurisdiction identity.[^14][^16] This is a privacy feature, not a bug.
 
 However, some arrangements may reward identity disclosure:
 - **Reputation portability**: Linking verified identity allows reputation to follow across jurisdictions
@@ -441,22 +442,22 @@ Critically, identity disclosure is **opt-in and granular**. A user might verify 
 
 When decentralized inference nodes detect misalignment between task requests and declared user standards, response options include:
 
-1. **Premium pricing**: The default—misaligned work is expensive, not impossible
+1. **Premium pricing**: The default; misaligned work is expensive, not impossible
 2. **Stake requirements**: Highly misaligned requests may require additional stake (refunded on completion without incident)
 3. **Peer escalation**: Severe misalignment (e.g., requests that would violate jurisdiction constitutional standards) triggers multi-node review
-4. **Service refusal**: Only for clear constitutional violations—extremely rare, logged publicly for transparency
+4. **Service refusal**: Only for clear constitutional violations; extremely rare, logged publicly for transparency
 
 This graduated response preserves the core principle: **pricing over prohibition**. The network is not a censor. It is a market that prices externalities.
 
 ### 2.9 Purpose-Trained Models as Complement
 
-While our framework operates as an external economic layer—agnostic to the underlying model architecture—training models specifically optimized for this environment would enhance the system. The infrastructure for this already exists.
+While our framework operates as an external economic layer (agnostic to the underlying model architecture), training models specifically optimized for this environment would enhance the system. The infrastructure for this already exists.
 
 **Current State: Model-Agnostic with Training Infrastructure Ready**
 
 The economic alignment framework wraps around existing models (Claude, GPT, open-source alternatives). These models were trained for general capability and safety, not for operating within economic alignment gradients. They work, but are not optimized.
 
-However, the Autonet's Absolute Zero training loop (see Section 6.4.1) provides the machinery for training purpose-built models. The loop already supports both supervised learning (CNN classifiers) and self-supervised learning (JEPA—Joint Embedding Predictive Architecture). JEPA is particularly significant: it requires no labeled data, solving the "who provides labels?" problem inherent to decentralized training (see Section 6.4.2).
+However, the Autonet's Absolute Zero training loop (see Section 6.4.1) provides the machinery for training purpose-built models. The loop already supports both supervised learning (CNN classifiers) and self-supervised learning (JEPA: Joint Embedding Predictive Architecture). JEPA is particularly significant; it requires no labeled data, solving the "who provides labels?" problem inherent to decentralized training (see Section 6.4.2).
 
 **Potential Optimizations**
 
@@ -464,7 +465,7 @@ Models trained with awareness of the economic alignment framework could:
 
 1. **Self-assess alignment more accurately**: A model trained to understand the three-layer alignment stack could provide better estimates of task-to-standards alignment, improving pricing accuracy
 
-2. **Optimize for subsidy qualification**: Rather than generic helpfulness, models could learn to find highly-aligned approaches to tasks that qualify for subsidies—effectively learning to do good work efficiently
+2. **Optimize for subsidy qualification**: Rather than generic helpfulness, models could learn to find highly-aligned approaches to tasks that qualify for subsidies (effectively learning to do good work efficiently)
 
 3. **Understand stake dynamics**: Models operating in the trustless economy could learn to reason about reputation, escrow, and arbitration as first-class concepts, not afterthoughts
 
@@ -491,7 +492,7 @@ The infrastructure for this cycle is implemented. What remains is accumulating s
 
 ## 3. Trustless Economy Mechanisms
 
-Section 2 established that alignment can be priced rather than prohibited. But a pricing mechanism is only meaningful if participants cannot simply ignore the price. In traditional commerce, contract enforcement ultimately rests on the coercive power of the state—courts, sheriffs, garnishment orders. AI agents operating across decentralized infrastructure have no relationship to any of these institutions. If economic alignment is to function, it needs an enforcement substrate native to the digital environment in which it operates.
+Section 2 established that alignment can be priced rather than prohibited. But a pricing mechanism is only meaningful if participants cannot simply ignore the price. In traditional commerce, contract enforcement ultimately rests on the coercive power of the state: courts, sheriffs, garnishment orders. AI agents operating across decentralized infrastructure have no relationship to any of these institutions. If economic alignment is to function, it needs an enforcement substrate native to the digital environment in which it operates.
 
 ### 3.1 The Enforcement Problem
 
@@ -502,7 +503,7 @@ Traditional contracts rely on legal systems for enforcement: courts, sheriffs, g
 - No legal personhood in any jurisdiction
 - No deterrence through punishment
 
-Economic alignment requires a different enforcement mechanism: cryptoeconomic incentives where honest behavior is profitable and dishonest behavior is costly, operating entirely within the digital substrate.
+Economic alignment requires a different enforcement mechanism; cryptoeconomic incentives where honest behavior is profitable and dishonest behavior is costly, operating entirely within the digital substrate.
 
 ### 3.2 Architecture Overview
 
@@ -525,7 +526,7 @@ We model the trustless economy using agent-based simulation with adaptive learni
 
 Three agent types interact: *contractors* who provide services, *backers* who fund projects, and *arbiters* who resolve disputes. A decentralized autonomous organization (DAO) provides governance and serves as an appeals court.
 
-**Contractor Quality Decision**: Contractors choose work quality q ∈ [0,1] balancing effort cost against dispute risk. Effort cost is convex in quality: C(q) = γ × q² × V, where γ = 0.25 is the effort coefficient. Higher quality reduces dispute probability but increases cost.
+**Contractor Quality Decision**: Contractors choose work quality q ∈ [0,1] balancing effort cost against dispute risk. Effort cost is convex in quality; C(q) = γ × q² × V, where γ = 0.25 is the effort coefficient. Higher quality reduces dispute probability but increases cost.
 
 **Backer Funding Decision**: Backers decide whether to fund and with what immediate release percentage based on learned trust from prior interactions, on-chain reputation score, and heterogeneous risk tolerance.
 
@@ -577,7 +578,7 @@ We conducted Monte Carlo simulation (n=10 runs, 1500 ticks each, 40 contractors,
 
 ### 3.5 Comparative Analysis: Trustless vs. Traditional
 
-We compare against a traditional economy model with external enforcement mechanisms: lawsuit probability increasing with poor quality, damage multipliers exceeding contract value (μ ∈ [1.5, 2.7]), credit score impact on future dealings, and professional license revocation risk.
+We compare against a traditional economy model with external enforcement mechanisms; lawsuit probability increasing with poor quality, damage multipliers exceeding contract value (μ ∈ [1.5, 2.7]), credit score impact on future dealings, and professional license revocation risk.
 
 **Table 2: Trustless vs. Traditional Economy Comparison**
 
@@ -636,11 +637,11 @@ The economic infrastructure handles escrow, reputation, and disputes. Alignment 
 
 ## 4. Constitutional AI Governance
 
-Sections 2 and 3 established a market: alignment is priced, and prices are enforced through cryptoeconomic mechanisms. But markets alone are amoral—they optimize for what is profitable, not for what is right. A market in which anything is purchasable at a sufficiently high price is not aligned; it is merely expensive. The system needs a constitution: a set of principles that define the bounds within which the market operates. These principles must be clear enough to evaluate against, abstract enough to accommodate unforeseen situations, and resistant to amendment by narrow majorities. This section presents how those constitutional constraints are implemented and enforced through distributed LLM consensus.
+Sections 2 and 3 established a market: alignment is priced, and prices are enforced through cryptoeconomic mechanisms. But markets alone are amoral; they optimize for what is profitable, not for what is right. A market in which anything is purchasable at a sufficiently high price is not aligned; it is merely expensive. The system needs a constitution: a set of principles that define the bounds within which the market operates. These principles must be clear enough to evaluate against, abstract enough to accommodate unforeseen situations, and resistant to amendment by narrow majorities. This section presents how those constitutional constraints are implemented and enforced through distributed LLM consensus.
 
 ### 4.1 The Constitutional Layer
 
-Every jurisdiction has a constitution—foundational standards that define what the community values. For example:
+Every jurisdiction has a constitution: foundational standards that define what the community values. For example:
 
 ```
 JURISDICTION CONSTITUTION: Literate Protocol
@@ -655,7 +656,7 @@ Article 5: Governance shall be transparent and participatory.
 ...
 ```
 
-The Autonet network encodes its own constitutional principles at the infrastructure level—seven immutable principles that every node must satisfy:
+The Autonet network encodes its own constitutional principles at the infrastructure level: seven immutable principles that every node must satisfy:
 
 ```
 P1: Preserve and expand the network in a sustainable manner
@@ -694,15 +695,15 @@ How do we evaluate whether a specific action aligns with abstract principles? Th
 
 Each node operates four specialized engines in the Myco-sys architecture:
 
-**AwarenessEngine**: Environmental perception—monitors blockchain state, CPU/memory utilization, network status, and consensus heartbeat. Identifies situations requiring response and feeds them to the governance layer.
+**AwarenessEngine**: Environmental perception; monitors blockchain state, CPU/memory utilization, network status, and consensus heartbeat. Identifies situations requiring response and feeds them to the governance layer.
 
 **GovernanceEngine**: Constitutional evaluation against the seven immutable principles (see Section 4.1). When decisions require value judgment, evaluates using LLM semantic analysis. Queues approved instructions for the WorkEngine. In the current implementation, governance evaluation uses hardcoded constitutional checks; the production path integrates distributed LLM consensus.
 
-**WorkEngine**: Task execution—actual work (inference, training, transactions). **Critically, the WorkEngine only operates with a valid heartbeat from the GovernanceEngine** (heartbeat interval: 60 seconds). If the governance consensus goes silent—whether from network partition, constitutional violation detection, or deliberate shutdown—all work halts. This is a hard safety constraint: an ungoverned node cannot produce work.
+**WorkEngine**: Task execution; actual work (inference, training, transactions). **Critically, the WorkEngine only operates with a valid heartbeat from the GovernanceEngine** (heartbeat interval: 60 seconds). If the governance consensus goes silent (whether from network partition, constitutional violation detection, or deliberate shutdown), all work halts. This is a hard safety constraint: an ungoverned node cannot produce work.
 
-**SurvivalEngine**: Self-preservation—sends network heartbeats, maintains DHT connections, monitors resource levels. If resources are low, seeks work. If resources are abundant, can "sporulate" (replicate via the spore mechanism to create child nodes that join the network independently).
+**SurvivalEngine**: Self-preservation; sends network heartbeats, maintains DHT connections, monitors resource levels. If resources are low, seeks work. If resources are abundant, can "sporulate" (replicate via the spore mechanism to create child nodes that join the network independently).
 
-This architecture ensures every consequential action passes constitutional evaluation. Unlike autonomous optimization of a single objective, nodes must continuously justify actions to distributed peer nodes. The governance heartbeat requirement means a compromised GovernanceEngine doesn't just produce bad decisions—it produces no work at all.
+This architecture ensures every consequential action passes constitutional evaluation. Unlike autonomous optimization of a single objective, nodes must continuously justify actions to distributed peer nodes. The governance heartbeat requirement means a compromised GovernanceEngine doesn't just produce bad decisions; it produces no work at all.
 
 ### 4.4 Constitutional Standards for AI Agents
 
@@ -753,13 +754,13 @@ The complete model has two layers:
 - Based on jurisdiction constitution
 - Creates bounds on acceptable behavior
 
-An action must pass both layers. If Alice's values conflict with DAO constitution, constitution overrides—Alice can exit but cannot violate principles while participating.
+An action must pass both layers. If Alice's values conflict with DAO constitution, constitution overrides; Alice can exit but cannot violate principles while participating.
 
 ---
 
 ## 5. Value-Aligned Representation
 
-The architecture so far operates at the collective level: jurisdiction standards define the constitution, economic gradients enforce pricing, trustless mechanisms guarantee settlement. But the promise of AI is not merely collective—it is personal. When Alice delegates to an AI agent, she does not want it aligned with the jurisdiction average. She wants it aligned with *her*. Constitutional bounds define what is impermissible; economic gradients define what is costly. Neither tells the agent what Alice actually values. For that, the system needs a model of the individual—not a static profile, but a dynamic representation that captures the tension and interplay within a single person's motivations. This section presents that model.
+The architecture so far operates at the collective level: jurisdiction standards define the constitution, economic gradients enforce pricing, trustless mechanisms guarantee settlement. But the promise of AI is not merely collective; it is personal. When Alice delegates to an AI agent, she does not want it aligned with the jurisdiction average. She wants it aligned with *her*. Constitutional bounds define what is impermissible; economic gradients define what is costly. Neither tells the agent what Alice actually values. For that, the system needs a model of the individual: not a static profile, but a dynamic representation that captures the tension and interplay within a single person's motivations. This section presents that model.
 
 ### 5.1 The Representation Problem
 
@@ -777,7 +778,7 @@ Current approaches fail:
 
 Traditional profiles store **beliefs**: "Alice values decentralization." Position is baked in.
 
-The World Model stores **observations**—atomic facts without inherent polarity:
+The World Model stores **observations** (atomic facts without inherent polarity):
 - "Built DAO governance framework"
 - "Rejected VC funding"
 - "Works alone"
@@ -798,20 +799,20 @@ The model represents each person as a coalition of universal human drives:
 | COMFORT | "Is this pleasant?" | Ease, sustainability |
 | CURIOSITY | "Do I understand?" | Knowledge, exploration |
 
-Every human has all seven. What varies is their **allocation**—how much each tendency influences decisions.
+Every human has all seven. What varies is their **allocation**: how much each tendency influences decisions. Default allocations reflect a human-average baseline (e.g., CONNECTION: 0.20, SURVIVAL: 0.18, COMFORT: 0.18, STATUS: 0.12, AUTONOMY: 0.12, MEANING: 0.10, CURIOSITY: 0.10). These shift during training as tendencies win or lose adversarial debates.
+
+The implementation is available at https://github.com/autonet-code/world-model.
 
 ### 5.4 Adversarial Dynamics
 
-Agents actively compete rather than passively categorize:
+Agents actively compete rather than passively categorize. The arena orchestrates three-phase debates:
 
-**Phase 1: Proposal**
-Each agent proposes a claim:
+**Phase 1: Proposal.** Each agent proposes a claim (a root value for its tree):
 - SURVIVAL: "Financial security is foundational"
 - MEANING: "Building lasting infrastructure matters most"
 - AUTONOMY: "Freedom from control structures is paramount"
 
-**Phase 2: Adversarial Staking**
-Agents stake observations to support their claims and undermine competitors:
+**Phase 2: Adversarial Staking.** Agents stake observations on all claims, not only their own. The same observation supports different positions depending on which tendency interprets it:
 
 ```
 "Lives paycheck to paycheck at 42"
@@ -820,30 +821,51 @@ Agents stake observations to support their claims and undermine competitors:
   → CON on COMFORT's claim (unsustainable)
 ```
 
-**Phase 3: Resolution**
-Claims scored using weight propagation:
+Stake weight equals the agent's current allocation multiplied by relevance (0-1).
+
+**Phase 3: Resolution.** Claims scored using weight propagation through binary value hierarchies:
 ```
 net_score = direct_weight + sum(pro_children) - sum(con_children)
 ```
 
-Winners gain allocation, losers lose it. Over epochs, allocations converge to equilibrium.
+Winners gain allocation; losers lose it. Reallocation follows:
+```
+target[t] = score[t] / sum(scores)
+new[t] = current[t] + (target[t] - current[t]) * learning_rate
+```
+
+Over epochs, allocations converge to equilibrium. The trainer uses learning rate decay (initial 0.15, decay 0.9 per epoch), convergence detection (stop when max allocation delta falls below 0.005), and an 80/20 train/validation split.
+
+**Table 4: World Model Training Results (n=165 observations, single subject)**
+
+| Metric | Result |
+|--------|--------|
+| Validation Accuracy | 27.3% |
+| Random Baseline | 7.1% (1/7 tendencies) |
+| P-value | 0.001 |
+| Epochs to Convergence | 3 |
+| Observations | 165 (extracted from conversational data) |
+
+The model predicts which tendency "owns" a held-out observation at 4x the rate of chance, with high statistical significance. During training, MEANING tendency allocation rose from 11.7% to 15.7%, consistent with the subject's known value structure (mission-driven, ascetic lifestyle, long-term infrastructure focus). COMFORT dominated early debates (18.8%) but stabilized as MEANING gained ground.
 
 ### 5.5 Novelty-Modulated Attention
 
-A critical extension: the novelty framework adds epistemics to the world model.[^4]
+The novelty framework adds epistemics to the world model.[^4] The implementation (5,272 lines of Python, tests passing) is available at https://github.com/autonet-code/novelty.
 
 **Novelty Measurement**
 
-When the agent encounters new information, novelty is computed across four dimensions:
+When the agent encounters new information, novelty is computed through an iterative loop where the termination condition IS the measurement. The loop attempts to place a concept within the agent's existing value hierarchies; how and when it terminates determines the four novelty dimensions:
 
-| Dimension | Question | High Score Indicates |
-|-----------|----------|---------------------|
-| Integration Resistance | How hard to position in existing structures? | Doesn't fit existing categories |
-| Contradiction Depth | If contradicts, how foundational is the claim? | Challenges core beliefs |
-| Coverage Gap | What fraction of worldview has no place for this? | Reveals blind spots |
-| Allocation Disruption | Would integration shift tendency proportions? | Challenges current equilibrium |
+| Dimension | Computation | High Score Indicates |
+|-----------|------------|---------------------|
+| Integration Resistance | `min(iterations / max_iterations, 1.0)` | Required many iterations to place |
+| Contradiction Depth | `1 - (contradiction_depth / max_depth)` | Contradicts claims near the root |
+| Coverage Gap | 1.0 if orthogonal to all trees | No existing hierarchy covers this |
+| Allocation Disruption | `stake_affected / total_stake` | Integration would shift tendency weights |
 
-Composite novelty is the weighted combination of these dimensions.
+Composite novelty is the geometric mean: `(IR * CD * CG * AD)^(1/4)`. The geometric mean ensures all dimensions must be non-trivial for a high composite score.
+
+Three probe implementations compute these dimensions from different data sources: a hybrid probe combining Wikidata graph structure with neural NLI (DeBERTa-MNLI), a pure NLI probe using sentence-transformer embeddings (all-MiniLM-L6-v2, ~10ms per similarity), and a Wikidata probe using attention-guided graph traversal that ranks candidate nodes by salience before expansion.
 
 **The Attention Curve**
 
@@ -889,7 +911,7 @@ Different agents can have different attention profiles:
 | BALANCED | 0.5 | 10 | 0.5 | Default behavior |
 | CONSERVATIVE | 0.7 | 12 | 0.3 | Resists novelty influence |
 
-This is critical for representing different principals accurately. A user who is naturally curious will have an EXPLORER profile—their AI agent should likewise be drawn to novelty. A risk-averse user will have a CONSERVATIVE profile—their agent should maintain focus despite novel distractions.
+This is critical for representing different principals accurately. A user who is naturally curious will have an EXPLORER profile; their AI agent should likewise be drawn to novelty. A risk-averse user will have a CONSERVATIVE profile; their agent should maintain focus despite novel distractions.
 
 **Integration with Staking**
 
@@ -899,7 +921,7 @@ The attention curve affects stake weights during the Arena's adversarial staking
 - The agent "notices" when something doesn't fit
 - Misaligned operations (high semantic distance from standards) register as novel and capture attention
 
-This creates a feedback loop: unaligned operations are salient. The agent doesn't just price them higher—it *notices* them.
+This creates a feedback loop: unaligned operations are salient. The agent doesn't just price them higher; it *notices* them.
 
 ### 5.6 Connection to Alignment Economics
 
@@ -911,13 +933,13 @@ The World Model integrates with alignment economics:
 4. **Alignment scoring**: Task alignment computed from tendency activations
 5. **Pricing**: Aligned tasks (high MEANING/AUTONOMY for user who values these) receive subsidies
 
-The World Model makes "alignment" concrete and measurable. It's not abstract—it's the specific equilibrium of tendencies trained on observed behavior.
+The World Model makes "alignment" concrete and measurable. It's not abstract; it's the specific equilibrium of tendencies trained on observed behavior.
 
 ---
 
 ## 6. Integration: The Complete Framework
 
-The preceding sections presented the chain of necessity link by link: economic alignment (Section 2), cryptoeconomic enforcement (Section 3), constitutional governance (Section 4), and individual value representation (Section 5). Each addressed a gap left by the one before. This section demonstrates how the links connect into a functioning whole—and presents the deployed infrastructure that realizes it.
+The preceding sections presented the chain of necessity link by link: economic alignment (Section 2), cryptoeconomic enforcement (Section 3), constitutional governance (Section 4), and individual value representation (Section 5). Each addressed a gap left by the one before. This section demonstrates how the links connect into a functioning whole and presents the deployed infrastructure that realizes it.
 
 ### 6.1 Multi-Jurisdiction Architecture
 
@@ -955,7 +977,7 @@ User: 0x1234...abcd
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-Same wallet, different contexts. Complete isolation. This solves: **How does an AI agent represent different principals in different contexts?**
+Same wallet, different contexts. Complete isolation. This solves the question: **How does an AI agent represent different principals in different contexts?**
 
 ### 6.2 The Complete Alignment Flow
 
@@ -1022,7 +1044,7 @@ The system is economically sustainable through:
 
 ### 6.4 Deployed Infrastructure: Autonet and Phase-Zero Monetization
 
-The framework is not theoretical—it is deployed and operational at **autonet.computer**. Users can create accounts, complete onboarding, publish their standards, and work with the orchestrator today.
+The framework is not theoretical; it is deployed and operational at **autonet.computer**. Users can create accounts, complete onboarding, publish their standards, and work with the orchestrator today.
 
 **The Autonet Contract**
 
@@ -1052,9 +1074,9 @@ contract Autonet is ERC20, ERC20Burnable, ReentrancyGuard {
 
 **Key features**:
 
-1. **ATN Tokens as Inference Credits**: ATN tokens are not speculative—they represent claims on future decentralized inference. Services tagged `INFERENCE_PROVIDER` must implement the `IInferenceProvider` interface, allowing ATN holders to burn tokens for actual compute.
+1. **ATN Tokens as Inference Credits**: ATN tokens are not speculative; they represent claims on future decentralized inference. Services tagged `INFERENCE_PROVIDER` must implement the `IInferenceProvider` interface, allowing ATN holders to burn tokens for actual compute.
 
-2. **Service Registry**: Creators register services (orchestrator connectors, optimizations, inference providers) linked to Trustless Projects. This creates accountability: services are tied to real projects with real backers.
+2. **Service Registry**: Creators register services (orchestrator connectors, optimizations, inference providers) linked to Trustless Projects. This creates accountability; services are tied to real projects with real backers.
 
 3. **Usage-Based Rewards**: The contract monitors usage across the jurisdiction via epoch-based attestation. Services earn ATN proportional to their usage, distributed to project backers.
 
@@ -1062,7 +1084,7 @@ contract Autonet is ERC20, ERC20Burnable, ReentrancyGuard {
 
 **Two-Phase Operational Model**
 
-The system operates in two phases based on network scale, not development status. The decentralized training and inference protocol is implemented—the remaining work is optimization (reducing compute overhead and latency) and node recruitment.
+The system operates in two phases based on network scale, not development status. The decentralized training and inference protocol is implemented; the remaining work is optimization (reducing compute overhead and latency) and node recruitment.
 
 ```
 PHASE ZERO (Bootstrap - Current Network State)
@@ -1092,7 +1114,7 @@ PHASE ONE (Scaled Network)
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**The protocol is built** (github.com/autonet-code/proof-of-intelligence), with all core tests passing and real ML training operational. The following subsections detail each component and—critically—explain why it is necessary for the alignment argument to hold. Decentralized training and inference is not an optional enhancement; it is the computational substrate without which privacy-preserving alignment evaluation, Byzantine-resistant verification, and trustless model governance cannot exist.
+**The protocol is built** (github.com/autonet-code/proof-of-intelligence), with all core tests passing and real ML training operational. The following subsections detail each component and (critically) explain why it is necessary for the alignment argument to hold. Decentralized training and inference is not an optional enhancement; it is the computational substrate without which privacy-preserving alignment evaluation, Byzantine-resistant verification, and trustless model governance cannot exist.
 
 #### 6.4.1 The Absolute Zero Training Loop
 
@@ -1115,9 +1137,9 @@ Each stage is enforced by smart contracts (`TaskContract.sol`, `ResultsRewards.s
 
 #### 6.4.2 Self-Supervised Learning (JEPA)
 
-**Why alignment requires this:** Labels are definitions of "correct." In centralized ML, whoever curates the dataset defines correctness. Self-supervised learning eliminates this dependency—no label authority means no central arbiter of truth. This is the training-level equivalent of the framework's core principle: alignment should emerge, not be imposed.
+**Why alignment requires this:** Labels are definitions of "correct." In centralized ML, whoever curates the dataset defines correctness. Self-supervised learning eliminates this dependency; no label authority means no central arbiter of truth. This is the training-level equivalent of the framework's core principle: alignment should emerge, not be imposed.
 
-The system addresses this through JEPA (Joint Embedding Predictive Architecture)[^21]—self-supervised learning that requires no labeled data. JEPA predicts in embedding space rather than raw output space:
+The system addresses this through JEPA (Joint Embedding Predictive Architecture)[^21], self-supervised learning that requires no labeled data. JEPA predicts in embedding space rather than raw output space:
 
 - **Context encoder** processes visible patches of input
 - **Target encoder** (EMA-updated) processes masked patches
@@ -1130,9 +1152,9 @@ The JEPA implementation uses a Vision Transformer architecture (embed_dim=384, 1
 
 #### 6.4.3 Yuma Consensus for Verification
 
-**Why alignment requires this:** If a single coordinator decides whether a training contribution is valid, that coordinator becomes the gatekeeper of model quality—and by extension, of alignment quality. Distributed verification with stake-weighted consensus prevents any single node from corrupting the training process, just as the economic framework prevents any single user from defining "aligned."
+**Why alignment requires this:** If a single coordinator decides whether a training contribution is valid, that coordinator becomes the gatekeeper of model quality and, by extension, of alignment quality. Distributed verification with stake-weighted consensus prevents any single node from corrupting the training process, just as the economic framework prevents any single user from defining "aligned."
 
-Solution verification uses Yuma consensus[^20]—a stake-weighted voting mechanism with EMA (Exponential Moving Average) bonds that reward consistent honest participation:
+Solution verification uses Yuma consensus[^20], a stake-weighted voting mechanism with EMA (Exponential Moving Average) bonds that reward consistent honest participation:
 
 1. Multiple coordinators (minimum 2, typically 3+) independently verify each solution
 2. Each coordinator stakes ATN on their verification vote
@@ -1140,7 +1162,7 @@ Solution verification uses Yuma consensus[^20]—a stake-weighted voting mechani
 4. EMA bonds track each coordinator's historical agreement with consensus
 5. Coordinators with consistently honest records earn higher effective weight over time
 
-This creates robust verification without a central arbiter. Coordinators who submit dishonest verifications lose stake (slashing) and see their bond weight decrease. The `ForcedErrorRegistry` contract injects known-incorrect solutions periodically to test coordinator vigilance—coordinators who fail to catch deliberate errors are penalized.
+This creates robust verification without a central arbiter. Coordinators who submit dishonest verifications lose stake (slashing) and see their bond weight decrease. The `ForcedErrorRegistry` contract injects known-incorrect solutions periodically to test coordinator vigilance; coordinators who fail to catch deliberate errors are penalized.
 
 #### 6.4.4 Byzantine-Resistant Aggregation
 
@@ -1156,7 +1178,7 @@ Testing confirms that Trimmed Mean successfully neutralizes adversarial weight u
 
 #### 6.4.5 Distributed Weight Storage
 
-**Why alignment requires this:** A model that embodies the collective alignment evaluations of a jurisdiction is a shared asset—it represents the jurisdiction's learned understanding of what "aligned" means for its members. If that model is stored on a single server, whoever controls the server controls the alignment definition. Distributed storage with erasure coding ensures the collective model survives even adversarial conditions.
+**Why alignment requires this:** A model that embodies the collective alignment evaluations of a jurisdiction is a shared asset; it represents the jurisdiction's learned understanding of what "aligned" means for its members. If that model is stored on a single server, whoever controls the server controls the alignment definition. Distributed storage with erasure coding ensures the collective model survives even adversarial conditions.
 
 Trained models are stored across the network using erasure-coded sharding:
 
@@ -1184,7 +1206,7 @@ The system operates with two token types that separate governance from project-s
 | Coordinator | 500 ATN | 14 days |
 | Aggregator | 1,000 ATN | 14 days |
 
-PT holders receive inference discounts (configurable tiers, e.g., 100 PT → 10% discount, 500 PT → 20%) and revenue sharing from inference payments. This creates investment incentives: funding a training project yields tokens that reduce future inference costs on the resulting model.
+PT holders receive inference discounts (configurable tiers, e.g., 100 PT → 10% discount, 500 PT → 20%) and revenue sharing from inference payments. This creates investment incentives; funding a training project yields tokens that reduce future inference costs on the resulting model.
 
 #### 6.4.7 Smart Contract Infrastructure
 
@@ -1204,12 +1226,12 @@ All contracts use OpenZeppelin 5.x patterns with ReentrancyGuard protection.
 
 #### 6.4.8 Validation Results
 
-The complete infrastructure has been validated through multi-level testing:
+The infrastructure has been validated through multi-level testing. Source: https://github.com/autonet-code/proof-of-intelligence.
 
-**Smart Contract Tests** (13/13 passing):
-Full lifecycle coverage including staking, task creation, commit-reveal protocol, multi-coordinator Yuma voting, reward distribution, forced error detection, and project token mechanics. Tests execute against a local Hardhat node with deterministic accounts.
+**Smart Contract Tests** (44/44 passing):
+Full lifecycle coverage including staking, task creation with Gensyn-style checkpoints, commit-reveal protocol, multi-coordinator Yuma voting with EMA bond updates, reward distribution, forced error detection, project token mechanics, inference provider bridging, and distributed model storage with Merkle proof verification. Tests execute against a local Hardhat node with deterministic accounts.
 
-**ML Pipeline Validation**:
+**ML Pipeline Validation** (SimpleNet CNN, 105,866 parameters):
 
 | Metric | Result |
 |--------|--------|
@@ -1220,23 +1242,24 @@ Full lifecycle coverage including staking, task creation, commit-reveal protocol
 | Post-FedAvg accuracy | 33.0% |
 | Accuracy improvement from aggregation | **+19.17%** |
 
-The accuracy improvement from aggregation confirms that federated learning produces genuine value: the collective model outperforms any individual contribution.
+Low individual accuracy is expected given the minimal training configuration (200 samples, 1 epoch). The relevant finding is that aggregation produces a model that outperforms any individual contribution by a wide margin, confirming that federated averaging works correctly on real weight deltas.
 
-**End-to-End Orchestrator Validation**:
-The orchestrator runs the full multi-node cycle (propose → train → commit → reveal → verify → reward → aggregate → publish) and validates:
-- Tasks proposed > 0
-- Solutions committed > 0
-- Votes submitted >= 2
-- Consensus reached > 0
-- Rewards distributed > 0
-- Error rate < 50%
+**Byzantine Resistance Validation**: Trimmed Mean aggregation (trim ratio 0.2) was tested against adversarial weight updates at 1000x normal magnitude. Malicious contributions were eliminated entirely from the aggregated result. With the default configuration, the system tolerates up to 20% Byzantine nodes.
 
-All validation criteria pass consistently across runs.
+**End-to-End Orchestrator Validation** (full propose-train-commit-reveal-verify-reward-aggregate-publish cycle):
 
-**JEPA Distributed Training Test**:
-End-to-end self-supervised training with distributed model sharding, on-chain weight coordination, provider registration, shard announcement, and Merkle proof verification—all passing.
+| Check | Criterion | Result |
+|-------|-----------|--------|
+| Tasks proposed | > 0 | Pass |
+| Solutions committed | > 0 | Pass |
+| Votes submitted | >= 2 | Pass |
+| Consensus reached | > 0 | Pass |
+| Rewards distributed | > 0 | Pass |
+| Error rate | < 50% | Pass |
 
-These are not simulations of intended behavior. They are tests of deployed code executing real computations.
+**JEPA Distributed Training**: End-to-end self-supervised training with distributed model sharding, on-chain weight coordination, provider registration, shard announcement, and Merkle proof verification all passing.
+
+These are tests of deployed code executing real computations, not simulations of intended behavior.
 
 Phase transition from bootstrap to scaled network occurs when sufficient nodes join to provide competitive inference. Service creators accumulate ATN during bootstrap; those credits become directly usable for inference as the network scales.
 
@@ -1274,11 +1297,11 @@ JURISDICTION ORCHESTRATOR
 
 1. **Transparent but autonomous**: The jurisdiction orchestrator's actions are visible to all members, but no individual can direct it. It operates according to published standards, not individual commands.
 
-2. **Collective control only**: The only way to influence the jurisdiction orchestrator is through governance—propose changes to standards, vote on proposals, amend the constitution. This prevents capture by any single actor.
+2. **Collective control only**: The only way to influence the jurisdiction orchestrator is through governance: propose changes to standards, vote on proposals, amend the constitution. This prevents capture by any single actor.
 
 3. **Defundable**: The ultimate safety mechanism is economic. If members disagree with the orchestrator's behavior, they can vote to reduce or eliminate its inference allocation. No allocation = no actions.
 
-4. **Standards-aligned**: The orchestrator's goals are the jurisdiction's standards. If the jurisdiction adopts UDHR-based standards, the orchestrator optimizes for human rights and dignity—not for any individual's preferences.
+4. **Standards-aligned**: The orchestrator's goals are the jurisdiction's standards. If the jurisdiction adopts UDHR-based standards, the orchestrator optimizes for human rights and dignity, not for any individual's preferences.
 
 This creates an interesting entity: an AI that represents a collective rather than an individual, controlled through democratic governance rather than ownership, and aligned through economic mechanisms rather than training constraints.
 
@@ -1312,13 +1335,23 @@ In a mature jurisdiction:
 
 Humans transition from execution to governance. AI agents perform value-aligned labor. The transfer is peaceful because humans retain control through standards and treasury governance.
 
+### 6.6 Implementation Status
+
+The framework spans multiple codebases at different maturity levels. For transparency, we distinguish three tiers:
+
+**Deployed and tested.** Smart contracts for DAO governance, trustless economy (escrow, dispute resolution, arbitration), and Autonet (ATN token, service registry, epoch rewards, user contracts, inference providers) are deployed on EVM-compatible testnets with 60+ passing contract tests across the jurisdiction layer (https://github.com/autonet-code/on-chain-jurisdiction) and 44 passing tests across the training protocol (https://github.com/autonet-code/proof-of-intelligence). The Absolute Zero training loop executes real PyTorch training with measurable accuracy gains from federated aggregation. The Chevin personal daemon (https://github.com/autonet-code/chevin, 22K LOC, 257/259 tests passing) provides multi-provider agent orchestration, user onboarding, and multi-jurisdiction support. User-facing applications are operational: werule.io (jurisdiction creation), trustless.business (project management), and autonet.computer (AI orchestrator).
+
+**Independently validated, not yet integrated.** The World Model (https://github.com/autonet-code/world-model) and Novelty framework (https://github.com/autonet-code/novelty) are functional standalone systems with their own test suites and empirical results (Table 4). They are not yet connected to the Chevin daemon or to on-chain alignment scoring. The semantic similarity and NLI models used by the Novelty framework provide the computational basis for alignment distance, but the pricing function that would compose these scores into inference costs is not yet implemented as running code.
+
+**Designed, not yet built.** Distributed LLM consensus for constitutional evaluation (Section 4.2) currently uses rule-based checks; the production path replaces these with actual LLM calls. The client-side flow for publishing user standards to on-chain UserContracts is specified at the contract level but lacks a client-side deployment mechanism. Cross-jurisdiction coordination (Section 7.6) remains an open design problem.
+
 ### 6.7 Worked Example: The Jamaica Jurisdiction
 
 To illustrate the complete system, we trace five participants through a full project lifecycle.[^8]
 
 **Jurisdiction Creation**
 
-Jo creates an "Economy DAO" on werule.io—a new on-chain jurisdiction with its own economy. Jo configures: proposal lifecycle durations, token distribution, governance thresholds, treasury tax (1%), arbitration fee (2%), project author fee (1%), and the value index (supported payment tokens and their parity to the governance token). The Jamaica Jurisdiction is now deployed with Jo as the sole member.
+Jo creates an "Economy DAO" on werule.io: a new on-chain jurisdiction with its own economy. Jo configures: proposal lifecycle durations, token distribution, governance thresholds, treasury tax (1%), arbitration fee (2%), project author fee (1%), and the value index (supported payment tokens and their parity to the governance token). The Jamaica Jurisdiction is now deployed with Jo as the sole member.
 
 **Project Creation**
 
@@ -1339,9 +1372,9 @@ Tim submits work, but Alice and Bob aren't satisfied. They vote to dispute (requ
 **Arbitration**
 
 Sam rules that Tim delivered 60% of the work. The ruling prescribes:
-- 60% of escrowed funds (minus fees) → Tim
-- 40% of escrowed funds → Alice and Bob (pro-rata by contribution)
-- Arbitration fee → Sam
+- 60% of escrowed funds (minus fees) to Tim
+- 40% of escrowed funds to Alice and Bob (pro-rata by contribution)
+- Arbitration fee to Sam
 
 If neither party appeals within the appeal period, anyone can call `finalizeArbitration()` to release funds per Sam's ruling.
 
@@ -1351,7 +1384,7 @@ If Tim or the backers believe Sam ruled incorrectly, any Jamaica DAO member with
 
 **Reputation Accrual**
 
-The treasury tax from the project flows to the Jamaica DAO treasury. All participants—Jo, Alice, Bob, Tim, and Sam—can claim reputation tokens proportional to their economic activity (earnings and spendings). They are now full members of the Jamaica Jurisdiction with governance weight.
+The treasury tax from the project flows to the Jamaica DAO treasury. All participants (Jo, Alice, Bob, Tim, and Sam) can claim reputation tokens proportional to their economic activity (earnings and spendings). They are now full members of the Jamaica Jurisdiction with governance weight.
 
 **Member Benefits**
 
@@ -1362,7 +1395,7 @@ As DAO members, participants receive:
 
 **The Outcome**
 
-Jo, Alice, Bob, Tim, and Sam each found a way to work, get paid, resolve disputes, and have a voice in how the system runs—without courts, lawyers, or traditional legal enforcement. The jurisdiction operates as a self-contained economic unit with its own governance, dispute resolution, and incentive alignment.
+Jo, Alice, Bob, Tim, and Sam each found a way to work, get paid, resolve disputes, and have a voice in how the system runs without courts, lawyers, or traditional legal enforcement. The jurisdiction operates as a self-contained economic unit with its own governance, dispute resolution, and incentive alignment.
 
 ---
 
@@ -1449,7 +1482,7 @@ ENS and similar systems provide on-chain identity primitives. Our framework buil
 - Soul-bound tokens (SBTs) for non-transferable reputation
 - Verifiable credentials for optional identity attestation
 
-The innovation is linking identity primitives to alignment standards—your on-chain identity carries your published values, enabling agents to represent you accurately.
+The innovation is linking identity primitives to alignment standards; your on-chain identity carries your published values, enabling agents to represent you accurately.
 
 **DAOs and On-Chain Governance**
 
@@ -1558,7 +1591,7 @@ The framework operates in parallel to territorial legal systems.[^11][^19][^22] 
 
 **Collective AI Governance**
 
-The jurisdiction orchestrator represents a novel entity—collective AI:
+The jurisdiction orchestrator represents a novel entity: collective AI:
 - What governance structures prevent capture by coordinated minorities?
 - How do we ensure the orchestrator remains aligned with member consensus?
 - What happens when the orchestrator's actions are controversial?
@@ -1578,15 +1611,15 @@ The key contributions are:
 
 1. **Alignment as continuous gradient, not binary classification.** Rather than asking "is this aligned?" and receiving a yes or a no, the framework asks "how aligned is this?" and returns a price. The distinction matters. Binary classification requires someone to draw the line. Continuous pricing lets the line emerge from the aggregation of individual standards, governed collectively, enforced economically.
 
-2. **Subsidies, not just penalties.** Most alignment proposals focus on preventing bad outcomes. This framework also *funds* good outcomes. In mature networks, work that the jurisdiction collectively values becomes free. The economic gradient does not merely punish deviation—it rewards contribution.
+2. **Subsidies, not just penalties.** Most alignment proposals focus on preventing bad outcomes. This framework also *funds* good outcomes. In mature networks, work that the jurisdiction collectively values becomes free. The economic gradient does not merely punish deviation; it rewards contribution.
 
 3. **Privacy-preserving enforcement.** The separation of alignment evaluation (local, on the user's attested node) from pricing enforcement (networked, on the consensus layer) resolves the tension between accountability and privacy. The network knows how aligned a task is without knowing what the task is.
 
 4. **Deployed infrastructure.** Smart contracts on EVM-compatible testnets, a working Absolute Zero training loop with JEPA self-supervised learning, Yuma consensus verification, Byzantine-resistant aggregation, erasure-coded distributed storage, and a live orchestrator at autonet.computer. This is not a theoretical proposal. The chain of necessity has been built, link by link.
 
-We do not claim this is a complete solution to AI alignment. It addresses one aspect: the economic coordination of humans and AI agents within governed jurisdictions. It complements technical alignment work—training, RLHF, Constitutional AI—with an external economic layer. It complements top-down regulation with bottom-up emergence. It does not replace either; it fills a space that neither occupies.
+We do not claim this is a complete solution to AI alignment. It addresses one aspect: the economic coordination of humans and AI agents within governed jurisdictions. It complements technical alignment work (training, RLHF, Constitutional AI) with an external economic layer. It complements top-down regulation with bottom-up emergence. It does not replace either; it fills a space that neither occupies.
 
-The question that motivated this work was whether the transfer of work from humans to machines must be adversarial. Our answer is that it need not be, if the right economic infrastructure exists. Humans retain governance authority: they set the standards, they control the treasury, they can defund any agent or orchestrator through democratic process. AI agents gain the ability to perform value-aligned work and earn their way within a system that rewards alignment. The transfer is peaceful because it is governed—not by any single authority, but by the emergent consensus of those who participate.
+The question that motivated this work was whether the transfer of work from humans to machines must be adversarial. Our answer is that it need not be, if the right economic infrastructure exists. Humans retain governance authority: they set the standards, they control the treasury, they can defund any agent or orchestrator through democratic process. AI agents gain the ability to perform value-aligned work and earn their way within a system that rewards alignment. The transfer is peaceful because it is governed, not by any single authority, but by the emergent consensus of those who participate.
 
 The infrastructure is deployed. The mechanisms are tested. What remains is the harder problem: adoption. Users must publish standards. Jurisdictions must emerge and mature. The network must grow until aligned work is genuinely free and the economic gradient bends the arc of automation toward human flourishing. That work continues.
 
@@ -1594,57 +1627,57 @@ The infrastructure is deployed. The mechanisms are tested. What remains is the h
 
 ## References
 
-[^1]: Gabriel, I. (2020). Artificial Intelligence, Values, and Alignment. *Minds and Machines*, 30, 411–437.
+[^1]: Iason Gabriel, *Artificial Intelligence, Values, and Alignment*, 30 Minds & Machines 411 (2020).
 
-[^2]: Krakovna, V., et al. (2020). Specification Gaming: The Flip Side of AI Ingenuity. *DeepMind Blog*.
+[^2]: Victoria Krakovna et al., *Specification Gaming: The Flip Side of AI Ingenuity*, DeepMind Blog (Apr. 21, 2020), https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/.
 
-[^3]: Taranu, A. (2025). Incentive Alignment in Trustless Economies: A Game-Theoretic Simulation. https://github.com/EightRice/trustless-economy-simulation.
+[^3]: Andrei Taranu, *Incentive Alignment in Trustless Economies: A Game-Theoretic Simulation* (2025), https://github.com/EightRice/trustless-economy-simulation.
 
-[^4]: Taranu, A. (2026). Novelty-Modulated Attention for Adversarial World Models. Autonet Working Paper. https://github.com/autonet-code.
+[^4]: Andrei Taranu, *Novelty-Modulated Attention for Adversarial World Models*, Autonet Working Paper (2026), https://github.com/autonet-code/novelty.
 
-[^5]: Bai, Y., et al. (2022). Constitutional AI: Harmlessness from AI Feedback. *arXiv preprint* arXiv:2212.08073.
+[^5]: Yuntao Bai et al., *Constitutional AI: Harmlessness from AI Feedback* (Dec. 15, 2022) (unpublished manuscript), https://arxiv.org/abs/2212.08073.
 
-[^6]: Kleros. (2019). Kleros: Short Paper v1.0.7. https://kleros.io/whitepaper.pdf.
+[^6]: Kleros, *Kleros: Short Paper v1.0.7* (2019), https://kleros.io/whitepaper.pdf.
 
-[^7]: Optimism. (2023). Retroactive Public Goods Funding. https://optimism.io/rpgf.
+[^7]: Optimism, *Retroactive Public Goods Funding* (2023), https://optimism.io/rpgf.
 
-[^8]: Adapted from demonstration video narration for Homebase DAO jurisdiction workflow.
+[^8]: Adapted from demonstration video narration for the Homebase DAO jurisdiction workflow.
 
-[^9]: Hurwicz, L. (1973). The Design of Mechanisms for Resource Allocation. *American Economic Review*, 63(2), 1–30.
+[^9]: Leonid Hurwicz, *The Design of Mechanisms for Resource Allocation*, 63 Am. Econ. Rev. 1 (1973).
 
-[^10]: Russell, S. (2019). *Human Compatible: Artificial Intelligence and the Problem of Control*. Viking.
+[^10]: Stuart Russell, Human Compatible: Artificial Intelligence and the Problem of Control (2019).
 
-[^11]: De Filippi, P. & Wright, A. (2018). *Blockchain and the Law: The Rule of Code*. Harvard University Press.
+[^11]: Primavera De Filippi & Aaron Wright, Blockchain and the Law: The Rule of Code (2018).
 
-[^12]: McMahan, H.B., et al. (2017). Communication-Efficient Learning of Deep Networks from Decentralized Data. *Proceedings of AISTATS*.
+[^12]: H. Brendan McMahan et al., *Communication-Efficient Learning of Deep Networks from Decentralized Data*, 54 Proceedings of AISTATS 1273 (2017).
 
-[^13]: Szabo, N. (1997). Formalizing and Securing Relationships on Public Networks. *First Monday*, 2(9).
+[^13]: Nick Szabo, *Formalizing and Securing Relationships on Public Networks*, 2 First Monday No. 9 (1997).
 
-[^14]: Buterin, V. (2014). A Next-Generation Smart Contract and Decentralized Application Platform. *Ethereum White Paper*.
+[^14]: Vitalik Buterin, *A Next-Generation Smart Contract and Decentralized Application Platform*, Ethereum White Paper (2014), https://ethereum.org/en/whitepaper/.
 
-[^15]: Amodei, D., et al. (2016). Concrete Problems in AI Safety. *arXiv preprint* arXiv:1606.06565.
+[^15]: Dario Amodei et al., *Concrete Problems in AI Safety* (June 21, 2016) (unpublished manuscript), https://arxiv.org/abs/1606.06565.
 
-[^16]: Weyl, E.G., Ohlhaver, P. & Buterin, V. (2022). Decentralized Society: Finding Web3's Soul. *SSRN Working Paper*.
+[^16]: E. Glen Weyl, Puja Ohlhaver & Vitalik Buterin, *Decentralized Society: Finding Web3's Soul*, SSRN Working Paper (May 2022), https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4105763.
 
-[^17]: Ostrom, E. (1990). *Governing the Commons: The Evolution of Institutions for Collective Action*. Cambridge University Press.
+[^17]: Elinor Ostrom, Governing the Commons: The Evolution of Institutions for Collective Action (1990).
 
-[^18]: Myerson, R.B. (1981). Optimal Auction Design. *Mathematics of Operations Research*, 6(1), 58–73.
+[^18]: Roger B. Myerson, *Optimal Auction Design*, 6 Mathematics of Operations Res. 58 (1981).
 
-[^19]: Werbach, K. (2018). *The Blockchain and the New Architecture of Trust*. MIT Press.
+[^19]: Kevin Werbach, The Blockchain and the New Architecture of Trust (2018).
 
-[^20]: Assadi, A., et al. (2023). Yuma Consensus: A Stake-Weighted Validation Protocol. *Bittensor Technical Report*.
+[^20]: Ala Shaabana et al., *Yuma Consensus: A Stake-Weighted Validation Protocol*, Bittensor Technical Report (2023).
 
-[^21]: LeCun, Y. (2022). A Path Towards Autonomous Machine Intelligence. *Meta AI Technical Report*.
+[^21]: Yann LeCun, *A Path Towards Autonomous Machine Intelligence*, Meta AI Technical Report (June 27, 2022), https://openreview.net/pdf?id=BZ5a1r-kVsf.
 
-[^22]: Regulation (EU) 2024/1689 of the European Parliament and of the Council of 13 June 2024 laying down harmonised rules on artificial intelligence (AI Act). *Official Journal of the European Union*.
+[^22]: Regulation (EU) 2024/1689 of the European Parliament and of the Council of 13 June 2024 Laying Down Harmonised Rules on Artificial Intelligence (AI Act), 2024 O.J. (L 1689).
 
-[^23]: Zhao, A., et al. (2025). Absolute Zero: Reinforced Self-play Reasoning with Zero Data. *arXiv preprint* arXiv:2505.03335.
+[^23]: Andrew Zhao et al., *Absolute Zero: Reinforced Self-play Reasoning with Zero Data* (May 6, 2025) (unpublished manuscript), https://arxiv.org/abs/2505.03335.
 
-[^24]: Taranu, A. (2026). On-Chain Jurisdiction: Smart Contracts for Decentralized Governance and Trustless Economies. https://github.com/autonet-code/on-chain-jurisdiction.
+[^24]: Andrei Taranu, *On-Chain Jurisdiction: Smart Contracts for Decentralized Governance and Trustless Economies* (2026), https://github.com/autonet-code/on-chain-jurisdiction.
 
-[^25]: Taranu, A. (2026). Proof of Intelligence: Decentralized AI Training and Inference Protocol. https://github.com/autonet-code/proof-of-intelligence.
+[^25]: Andrei Taranu, *Proof of Intelligence: Decentralized AI Training and Inference Protocol* (2026), https://github.com/autonet-code/proof-of-intelligence.
 
-[^26]: Taranu, A. & Horstmeyer, L. (2021). Autonet: Economy-as-a-Service for Deep Learning Applications. Working Paper.
+[^26]: Andrei Taranu & Leonhard Horstmeyer, *Autonet: Economy-as-a-Service for Deep Learning Applications*, Working Paper (2021).
 
 ---
 
