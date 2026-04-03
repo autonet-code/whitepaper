@@ -2,13 +2,19 @@
 
 ## Current Paper
 
+**[Autonet: The Recursive Principial Body](autonet_paper_v3.md)**
+
+Eight Rice | April 2026
+
+The paper describes the RPB (Recursive Principial Body) protocol — a system for decentralized AI training, inference, and governance where every participant is an agent. It covers the agent-as-atom model, the RPB contract architecture, VL-JEPA training, two-speed inference, alignment-as-economics, the four token types, sponsorship, and jurisdiction migration. Deployed on Etherlink Shadownet.
+
+### Related Papers
+
 **[Emergent Alignment: Economic Mechanisms for the Peaceful Transfer of Work from Humans to AI](emergent_alignment.md)**
 
 Andrei Taranu (Eight Rice) | February 2026
 
-Submitted to the Stanford Journal of Blockchain Law & Policy, special issue for the Kleros-Stanford Symposium on Decentralized Justice and AI.
-
-The paper argues that AI alignment is an economic coordination problem, not a technical constraint problem. It presents an integrated architecture where alignment emerges from the aggregation of individual value structures within governed jurisdictions, enforced through continuous economic gradients rather than binary prohibitions.
+Submitted to the Stanford Journal of Blockchain Law & Policy. Argues that AI alignment is an economic coordination problem. Presents the theoretical framework behind the RPB: trustless economies, constitutional governance, adversarial world models, and alignment through pricing gradients.
 
 ### Related Repositories
 
@@ -18,10 +24,9 @@ The paper argues that AI alignment is an economic coordination problem, not a te
 
 ## Versions
 
-| Version | Date | Description |
-|---------|------|-------------|
-| **Emergent Alignment** (current) | Feb 2026 | Full framework: economic alignment, trustless economy, constitutional governance, world model, decentralized training/inference. ~13,000 words. Deployed infrastructure. |
-| **Autonet: Economy-as-a-Service** | Sep 2021 | Original whitepaper proposing a token economy for deep learning applications. Four stakeholder roles, Proof of Intelligence, service ontology. |
+- **RPB Whitepaper** (current) | April 2026 -- Complete system description: agent model, RPB contract, VL-JEPA, two-speed inference, alignment pricing, four token types, sponsorship, jurisdiction migration. Deployed infrastructure on Etherlink Shadownet.
+- **Emergent Alignment** | Feb 2026 -- Theoretical framework: economic alignment, trustless economy, constitutional governance, world model, decentralized training/inference. ~13,000 words. Stanford JBLP submission.
+- **Autonet: Economy-as-a-Service** | Sep 2021 -- Original whitepaper proposing a token economy for deep learning applications.
 
 ## Legacy
 
