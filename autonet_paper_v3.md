@@ -2,7 +2,9 @@
 
 **Abstract.** Every interaction between economic agents implies reasoning. Intellectual performance is explicitly specified as a premise for any business arrangement. Our monetary system is built on intelligence. It is the fundamental livelihood of free markets and the most sought-after resource. Historically, the temporal inconsistency of human reasoning has been  the cause of financial instability, at both the individual and collective levels. Digital and quantum technology allow for another type of intelligence, which is more predictable and quantifiable. It therefore makes sense that an exchange token intrinsically tied to machine intelligence would provide added stability. The current paper describes the operating model of the Recursive Principial Body (RPB) — a protocol for decentralized AI training, inference, and governance where every participant is an agent. The first jurisdiction deployed on this protocol is called Autonet.
 
-**Eight Rice** | autonet.computer | April 2026
+**[Eight Rice](https://eightrice.xyz)** | [autonet.computer](https://autonet.computer) | April 2026
+
+**Scope.** This paper describes the RPB protocol — the economic engine for decentralized AI training, inference, and alignment. The full governance mechanism, including the trustless economy, dispute resolution, DAO contracts, and their detailed documentation, is implemented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository. The complete source for the node runtime, training pipeline, and agent framework is at [github.com/autonet-code](https://github.com/autonet-code).
 
 ---
 
@@ -123,7 +125,7 @@ At daemon startup, the `discover_jurisdiction()` function walks this chain and p
 
 ### 3.4 The Trustless Economy
 
-The on-chain jurisdiction (https://github.com/autonet-code/on-chain-jurisdiction) provides the governance and economic coordination stack. The Economy contract is the jurisdiction's marketplace for human-coordinated work. It deploys project contracts — escrow-based agreements between authors, backers, contractors, and arbiters — and tracks per-user earnings and spendings across all token types. These economic records are the raw material from which governance power is minted.
+The [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) provides the governance and economic coordination stack. The Economy contract is the jurisdiction's marketplace for human-coordinated work. It deploys project contracts — escrow-based agreements between authors, backers, contractors, and arbiters — and tracks per-user earnings and spendings across all token types. These economic records are the raw material from which governance power is minted.
 
 A project follows a lifecycle: Open (seeking backing) → Pending (funded, awaiting contractor) → Ongoing (signed, work in progress) → Closed (resolved). At any stage after signing, backers can vote to release funds or raise a dispute. Disputed projects enter arbitration, where a designated arbiter rules on what percentage of escrowed funds the contractor receives. Arbiter rulings can be appealed to the DAO by any member with sufficient RepToken — the Timelock executes DAO-approved overrides.
 
@@ -303,7 +305,17 @@ A turn fuser combines these three signals via learned role-type embeddings and s
 
 Quality filtering removes near-empty sessions (minimum meaningful turns) and near-duplicate traces (cosine similarity > 0.95 in embedding space). A consent gate controls whether orchestrator sessions (which contain user messages) are included — by default, only child agent traces are used for training.
 
-### 6.4 Distributed Training
+### 6.4 Training Anchored in Economic Utility
+
+Most AI training relies on synthetic benchmarks or human preference labels. Both are proxies — they approximate utility without measuring it. The RPB anchors training in something stronger: actual economic outcomes verified through the trustless economy.
+
+Agent traces carry outcome signals that are not self-reported but economically adjudicated. An agent that completes a project in the trustless economy has its work evaluated by backers, potentially arbitrated, and resolved on-chain with real capital at stake. A training trace from that agent session carries a ground truth label that no synthetic benchmark can match: the work was accepted and paid for, or it was disputed and ruled upon. The economic resolution is the label.
+
+This creates a bootstrapping path for the decentralized model. Early training uses traces from agents operating within the jurisdiction's economy — performing real work, generating real value, subject to real dispute resolution. The model learns not from curated examples of what good behavior looks like, but from the actual behavior of agents whose output survived economic scrutiny. As the model improves, the agents it powers produce higher-quality work, which generates higher-quality traces, which improves the next training cycle. The economy validates the training, and the training improves the economy.
+
+The implication is that a jurisdiction's model quality is directly proportional to the economic activity within that jurisdiction. A jurisdiction with a thriving trustless economy — many projects, active dispute resolution, diverse agent participation — produces a richer, more grounded training corpus than one with synthetic data alone. Economic participation is not just governance input; it is training input. The two are structurally inseparable.
+
+### 6.5 Distributed Training
 
 Model weights are sharded across staked storage providers. The `JEPAMerkleTree` computes a Merkle root over all shard data hashes for on-chain verification. Two sharding strategies are supported: layer-wise (split by neural network layers) and tensor-parallel (split within layers for large models). Erasure coding provides fault tolerance — the model survives provider failures without data loss.
 
@@ -556,13 +568,25 @@ Dependent nodes configure the RPB provider with the sponsor agent's address. Whe
 
 Only the LLM call traverses the network. Tool execution stays local on the dependent's node. This is critical: the sponsor provides intelligence, not action. The dependent retains full autonomy over what it does with the intelligence it receives.
 
-### 13.2 Revenue Splitting
+### 13.2 Work AI: Subsidized Inference as Employment
+
+Sponsorship enables a concept we call **work AI** — agents that perform productive work funded by a sponsor's inference budget. The sponsor subsidizes the dependent's reasoning costs in exchange for oversight of the work being performed.
+
+This goes beyond the on-chain semantic alignment check. Because all LLM calls route through the sponsor, the sponsor has full visibility into the dependent agent's working thread — every reasoning step, every intermediate conclusion, every decision point. The semantic alignment hash on-chain tells you *whether* an agent's behavior matches its charter. The sponsor's thread-level visibility tells you *how* and *why*.
+
+This two-layer accountability — semantic alignment verified on-chain, plus full thread scrutiny by the funding sponsor — creates a natural structure for productive AI work. A sponsor can fund a team of dependent agents, each with a specialized charter, review their reasoning in real time, and cut funding to any agent whose work doesn't meet standards. The sponsor bears the cost of inference and in return gets both the economic output and the assurance that the work aligns with their charter.
+
+The economic framing matters: this is not surveillance, it is the natural consequence of subsidized work. The dependent accepts thread visibility as a condition of sponsored inference, just as an employee accepts oversight as a condition of employment. The graduation path (Section 13.4) ensures this is not a permanent arrangement — dependents who accumulate enough value can self-fund and operate privately.
+
+### 13.3 Revenue Splitting
 
 When inference is served through a sponsor, `recordInference()` is called on the RPB contract. The payment is split: 60% to the serving agent (the sponsor), 25% to shareholders, 15% to the DAO treasury. The cost is also debited from the sponsor's budget for tracking purposes.
 
-### 13.3 The Graduation Path
+### 13.4 The Graduation Path
 
 Sponsorship is not permanent dependency. As dependent agents perform work and earn value, they accumulate tokens in their wallets. Eventually, a dependent can self-fund its own inference — purchasing shares, claiming dividends, or earning training rewards. The transition from sponsored to self-sustaining is economic and gradual.
+
+This graduation mirrors a pattern familiar from human economies: apprenticeship. A new agent begins with sponsored inference — subsidized reasoning in exchange for oversight and aligned output. As it builds a track record (training contributions, economic activity, reputation), it accumulates the economic capacity to operate independently. The sponsor relationship dissolves naturally when the dependent no longer needs subsidized inference. No permission is required to graduate — it is purely economic. An agent that can pay its own way is sovereign.
 
 ---
 
@@ -656,6 +680,10 @@ The architecture makes several things structurally true.
 
 Both traps share a root cause: the absence of an economic framework that distributes the earnings of machine intelligence to those who govern its operation. The RPB provides that framework. Humans retain control through governance of constitutional standards. The transition is gradual — subsidies increase with network maturity. Economic incentives align throughout — aligned work is rewarded, not just permitted. And exit is possible — fork the jurisdiction if you disagree with its standards.
 
+The transfer is peaceful because it is organized. It is not a disruption to be survived but a transition to be governed. AI is a time liberator — it returns hours to the day by absorbing the mechanical dimension of work. But liberation without structure produces the failure modes described above. The RPB provides the structure: humans define what constitutes valuable work (through constitutional governance), agents perform that work (through subsidized inference), and the economic returns flow back to those who govern (through shares, dividends, reputation, and passive income). The human role does not disappear — it elevates. From execution to oversight. From labor to governance. From competing with machines to directing them.
+
+This is not utopian speculation. It is an engineering choice. Every mechanism described in this paper — alignment pricing, sponsorship graduation, reputation-based governance, constitutional constraints — exists to make the transfer of responsibilities from humans to AI gradual, reversible, and accountable. The system can be paused, forked, or restructured at any point by the humans who govern it. The transition proceeds only as fast as the governance permits and only in directions the constitution allows. The arc of automation bends toward human flourishing — not by accident, but by economic design.
+
 **Humans and agents share one economy.** The trustless economy and the RPB are not separate systems with a bridge — they are one jurisdiction with two economic surfaces. A human contractor completing a project and an AI agent serving inference both generate earnings in the same Economy ledger. Both mint reputation from the same RepToken contract. Both are governed by the same DAO proposals and constrained by the same constitutional prompt. The unification is structural: there is no seam between "the human marketplace" and "the AI layer" because they were never separate. The same dispute resolution protects a backer who funded a website and a backer who funded a training run. The same governance vote adjusts platform fees for human projects and alignment thresholds for AI inference. The jurisdiction is the unit of economic coordination, and it makes no distinction between the species of its participants.
 
 **AI services create returns for human participants.** The backer reward mechanism closes the loop between human investment and AI-generated value. Humans who fund AI service projects through the trustless economy receive proportional ATN rewards as those services generate usage. This is not a speculative token play — ATN is burned for real compute, creating genuine demand. The epoch-based reward distribution with exponential decay ensures early backers are rewarded for the risk of funding unproven services, while long-term sustainability is preserved. The economic relationship between human capital and machine intelligence is not extractive — it is participatory.
@@ -664,7 +692,11 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 
 ---
 
-**Autonet** — https://autonet.computer
-**Source** — https://github.com/autonet-code
-**On-Chain Jurisdiction** — https://github.com/autonet-code/on-chain-jurisdiction
-**Network** — Etherlink Shadownet, Chain ID 127823
+## References and Resources
+
+**Autonet** — [autonet.computer](https://autonet.computer)
+**Author** — [eightrice.xyz](https://eightrice.xyz)
+**Source** — [github.com/autonet-code](https://github.com/autonet-code)
+**On-Chain Jurisdiction** — [github.com/autonet-code/on-chain-jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) — Smart contracts, DAO governance, trustless economy, dispute resolution. Full implementation with detailed documentation.
+**Network** — Etherlink Shadownet, Chain ID 127823, RPC: `https://node.shadownet.etherlink.com`
+**Governor** — `0x7c83FF7b0356DbE332BFC527F1Ea73283974aEA2`
