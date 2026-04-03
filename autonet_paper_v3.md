@@ -66,21 +66,12 @@ The key privacy property: only charter vectors and periodic activity vectors are
 
 The system is organized in four layers.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 3: Applications                                          │
-│  Agent Framework │ Flutter Web UI │ Inference Marketplace        │
-├─────────────────────────────────────────────────────────────────┤
-│  Layer 2: Training & Inference                                  │
-│  VL-JEPA │ Two-Speed Engine │ Trace Encoding │ Alignment Pricing│
-├─────────────────────────────────────────────────────────────────┤
-│  Layer 1: Smart Contracts                                       │
-│  RPB │ Governor │ RepToken │ Registry │ Economy │ Timelock       │
-├─────────────────────────────────────────────────────────────────┤
-│  Layer 0: L1 Anchor                                             │
-│  Etherlink (Tezos L2) │ EVM Compatibility │ Sub-second Blocks   │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Layer | Components |
+|-------|------------|
+| Layer 3: Applications | Agent Framework, Flutter Web UI, Inference Marketplace |
+| Layer 2: Training & Inference | VL-JEPA, Two-Speed Engine, Trace Encoding, Alignment Pricing |
+| Layer 1: Smart Contracts | RPB, Governor, RepToken, Registry, Economy, Timelock |
+| Layer 0: L1 Anchor | Etherlink (Tezos L2), EVM Compatibility, Sub-second Blocks |
 
 ### 3.1 Layer 0: L1 Anchor
 
