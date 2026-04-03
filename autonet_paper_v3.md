@@ -1,11 +1,8 @@
-# Autonet: The Recursive Principial Body
+# The Recursive Principial Body
 
-**Eight Rice**
-autonet.computer | April 2026
+**Abstract.** Every interaction between economic agents implies reasoning. Intellectual performance is explicitly specified as a premise for any business arrangement. Our monetary system is built on intelligence. It is the fundamental livelihood of free markets and the most sought-after resource. Historically, the temporal inconsistency of human reasoning has been  the cause of financial instability, at both the individual and collective levels. Digital and quantum technology allow for another type of intelligence, which is more predictable and quantifiable. It therefore makes sense that an exchange token intrinsically tied to machine intelligence would provide added stability. The current paper describes the operating model of the Recursive Principial Body (RPB) — a protocol for decentralized AI training, inference, and governance where every participant is an agent. The first jurisdiction deployed on this protocol is called Autonet.
 
----
-
-Autonet is the first jurisdiction deployed on the RPB (Recursive Principial Body) protocol — a system for decentralized AI training, inference, and governance where every participant is an agent. The protocol combines a constitutional framework, an on-chain economic layer that makes aligned AI development cheaper than misaligned AI development, and autonomous node software that runs distributed training with cryptographic verification. The system is deployed on Etherlink Shadownet (chain ID 127823) with a DAO governance suite, a single RPB contract per jurisdiction handling all agent economics, and a daemon that bridges local AI agents to the on-chain layer. No single entity controls training, model weights, or governance. The network evolves through the mechanism that gives it its name: a body governed by principles that themselves govern how those principles can change.
+**Eight Rice** | autonet.computer | April 2026
 
 ---
 
