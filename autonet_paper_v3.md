@@ -132,7 +132,7 @@ At daemon startup, the `discover_jurisdiction()` function walks this chain and p
 
 ### 3.4 The Trustless Economy
 
-The Economy contract is the jurisdiction's marketplace for human-coordinated work. It deploys project contracts — escrow-based agreements between authors, backers, contractors, and arbiters — and tracks per-user earnings and spendings across all token types. These economic records are the raw material from which governance power is minted.
+The on-chain jurisdiction (https://github.com/autonet-code/on-chain-jurisdiction) provides the governance and economic coordination stack. The Economy contract is the jurisdiction's marketplace for human-coordinated work. It deploys project contracts — escrow-based agreements between authors, backers, contractors, and arbiters — and tracks per-user earnings and spendings across all token types. These economic records are the raw material from which governance power is minted.
 
 A project follows a lifecycle: Open (seeking backing) → Pending (funded, awaiting contractor) → Ongoing (signed, work in progress) → Closed (resolved). At any stage after signing, backers can vote to release funds or raise a dispute. Disputed projects enter arbitration, where a designated arbiter rules on what percentage of escrowed funds the contractor receives. Arbiter rulings can be appealed to the DAO by any member with sufficient RepToken — the Timelock executes DAO-approved overrides.
 
@@ -669,4 +669,5 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 
 **Autonet** — https://autonet.computer
 **Source** — https://github.com/autonet-code
+**On-Chain Jurisdiction** — https://github.com/autonet-code/on-chain-jurisdiction
 **Network** — Etherlink Shadownet, Chain ID 127823
