@@ -130,13 +130,25 @@ Registry.getRegistryValue("rpb.contract") → RPB
 
 At daemon startup, the `discover_jurisdiction()` function walks this chain and populates the configuration. The frontend receives all discovered addresses via WebSocket when the daemon reports its state. No addresses are hardcoded; any jurisdiction can be connected by providing its Governor address and RPC URL.
 
-### 3.4 Layer 2: Training and Inference
+### 3.4 The Trustless Economy
+
+The Economy contract is the jurisdiction's marketplace for human-coordinated work. It deploys project contracts — escrow-based agreements between authors, backers, contractors, and arbiters — and tracks per-user earnings and spendings across all token types. These economic records are the raw material from which governance power is minted.
+
+A project follows a lifecycle: Open (seeking backing) → Pending (funded, awaiting contractor) → Ongoing (signed, work in progress) → Closed (resolved). At any stage after signing, backers can vote to release funds or raise a dispute. Disputed projects enter arbitration, where a designated arbiter rules on what percentage of escrowed funds the contractor receives. Arbiter rulings can be appealed to the DAO by any member with sufficient RepToken — the Timelock executes DAO-approved overrides.
+
+The Economy supports both native-token and ERC20-denominated projects through minimal proxy clones. DAO-controlled parameters govern the marketplace: arbitration fees (basis points), platform fees (default 1%), author fees (default 1%), cooling-off periods before contractor signing, backer vote quorum thresholds (default 70%), project creation thresholds (minimum RepToken to create a project), appeal windows, and maximum immediate-release percentages (default 20% of backer contributions available to the contractor at signing, remainder locked in escrow until resolution).
+
+The tracking is precise. When a contractor withdraws from a resolved project, the Economy records their net earnings after fees. When an arbiter collects their fee, their earnings are recorded. When backers exit a failed project, their losses are recorded as spendings. Both earnings and spendings generate reputation — the system rewards economic contribution and risk-taking equally.
+
+This is the foundation of the jurisdiction's governance legitimacy. Voting power is not purchased; it is earned through participation in real economic activity. A contractor who delivers quality work, an arbiter who resolves disputes fairly, a backer who funds productive projects — all accumulate reputation that translates directly into governance authority. The trustless economy makes governance accountable to economic contribution.
+
+### 3.5 Layer 2: Training and Inference
 
 The training layer is built around VL-JEPA (Vision-Language Joint Embedding Predictive Architecture) — a self-supervised learning architecture that learns representations from data structure alone, without requiring labeled data. This is essential for decentralized training: labeled data requires trusting whoever provides the labels. JEPA eliminates this trust requirement.
 
 The inference layer implements a two-speed architecture: a fast local decoder on the user's device handles all token generation, while the network provides guidance through latent-space reasoning that operates one or more turns behind. Described in detail in Sections 6 and 7.
 
-### 3.5 Layer 3: Applications
+### 3.6 Layer 3: Applications
 
 **ATN Agent Framework.** The daemon manages agent lifecycles: registration, activation, deactivation, scheduling, inbox messaging, tool execution, and delegation. Agents communicate through an open inbox system — any agent can message any other agent regardless of hierarchy. Parent-child relationships determine economic authority (fund draining, budget cascading) but not communication access.
 
@@ -383,9 +395,110 @@ In the decentralized inference phase, the network sets inference pricing based o
 
 ---
 
-## 9. The Economic Loops
+## 9. Economic Coordination Across Humans and Agents
 
-The system creates eight verified economic loops. Each loop is a closed cycle where value created in one part of the system flows through to create value in another.
+The RPB and the trustless economy share a single on-chain jurisdiction. The same Governor, Timelock, Registry, and RepToken govern both human project-based work and AI agent economics. This is not integration between separate systems — it is one system with two economic surfaces that share a common governance substrate.
+
+### 9.1 The Reputation Bridge
+
+Human economic activity in the trustless economy generates on-chain earnings and spendings records. These records are the inputs to reputation minting. RepToken implements pull-based reputation: participants call `claimReputationFromEconomy()`, which reads their full `UserProfile` from the Economy contract and mints tokens proportional to unclaimed economic activity, normalized through the value index parity system.
+
+The formula is straightforward: every unit of normalized value earned or spent in the jurisdiction's marketplace produces a corresponding unit of RepToken. A contractor who completes a 10,000 USDC project earns reputation from those earnings. A backer who loses 2,000 USDC on a failed project earns reputation from those spendings. The system does not distinguish between profit and loss — it recognizes participation and risk.
+
+RepToken can be configured as non-transferable at deployment. In this mode, governance power is soul-bound: it cannot be purchased on secondary markets, only earned through economic contribution. This prevents plutocratic capture of the governance layer.
+
+### 9.2 From Reputation to AI Access
+
+RepToken holders face a governance decision: hold tokens for voting power and passive income, or convert them to ATN (the Autonet token) for AI service access. The conversion is one-way and irreversible — `convertGovernanceToAtn()` locks RepToken permanently in the Autonet contract and mints ATN at a governance-set conversion rate.
+
+This creates a meaningful tradeoff. RepToken provides:
+
+- **Voting power.** One token, one vote on DAO proposals — parameter changes, constitutional amendments, appeal rulings.
+- **Passive income.** Pro-rata share of treasury-funded income epochs, distributed by reputation balance at a snapshot timestamp.
+- **Delegate rewards.** Tokens distributed to delegates proportional to their delegated voting power, incentivizing active governance participation.
+- **Project creation rights.** Minimum RepToken balance required to create new projects in the Economy.
+
+ATN provides:
+
+- **Inference credits.** ATN is burned directly to request compute from registered inference providers.
+- **Service registration.** AI services are registered on-chain with linked project contracts and codebase hashes.
+- **Evolution proposal stakes.** ATN is staked as collateral when proposing system improvements.
+
+The one-way conversion ensures that the governance layer cannot be drained by compute demand. Those who choose AI access sacrifice their governance say — a structural separation of powers between those who direct the jurisdiction and those who consume its services.
+
+### 9.3 Agent Services Within the Jurisdiction
+
+AI services are registered in the Autonet contract with two types: GENERAL (usage-tracked services) and INFERENCE_PROVIDER (services that accept ATN for compute via the `IInferenceProvider` interface). Each service is linked to a project contract from the trustless economy — the same escrow and dispute infrastructure that governs human work.
+
+This linkage is the critical design choice. An AI service backed by a trustless economy project inherits the full dispute resolution stack: backer voting on service quality, arbiter rulings on contested outputs, DAO appeals for high-stakes disagreements. The governance parameters are identical — the same arbitration fee percentages, the same quorum thresholds, the same appeal windows apply to both a human contractor delivering a website and an AI service delivering inference.
+
+Service usage is tracked through attestation. Off-chain providers (training nodes, inference endpoints) call `attestUsage(serviceId, units)` to record real-world utility on-chain. Usage accumulates per-epoch, and epoch budgets determine reward distribution. The budget follows exponential decay — early epochs distribute more ATN, creating first-mover incentives for service providers while ensuring long-term sustainability.
+
+### 9.4 Reward Flows Back to Humans
+
+The system creates two paths for AI-generated value to flow back to human participants:
+
+**The backer path.** Humans who back AI service projects through the trustless economy can claim proportional rewards from that service's epoch-based ATN distribution. The calculation is direct: `(backerStake / totalStake) × epochReward`. A backer who funds 30% of a training project receives 30% of the ATN rewards that project's service generates. This makes AI service investment accessible through the same project-backing mechanism used for any other work in the jurisdiction.
+
+**The worker path.** Humans (or their agents) who attest usage — by contributing training compute, validating model outputs, or serving inference — claim rewards proportional to their attested units within each epoch. The calculation: `(attesterUnits / serviceUsage) × epochReward`. Training node operators, model validators, and inference providers all earn through the same mechanism.
+
+Both paths terminate in ATN, which can be used for further inference requests, staked in evolution proposals, or held as the service ecosystem matures. The value cycle is closed: human economic activity generates reputation, reputation converts to AI access or governance power, AI services generate rewards, rewards fund further human participation.
+
+### 9.5 Per-Agent Identity and Alignment
+
+Each participant — human or AI — can create an on-chain identity contract via `AutonetUser`. This contract stores:
+
+- **Standards agreement hash.** A cryptographic commitment to the jurisdiction's constitutional standards at the time of registration.
+- **Alignment score.** A value from 0 to 10,000 basis points representing semantic alignment between the participant's charter and the jurisdiction's constitution.
+- **Usage statistics.** Total attestations and units contributed, providing a verifiable track record.
+
+The alignment score feeds directly into the pricing function described in Section 8. Participants whose on-chain identity demonstrates high constitutional alignment receive subsidized inference. Participants with low alignment pay premiums. The identity is portable within the jurisdiction — the same alignment score applies whether the participant is backing a human project, operating an AI service, or requesting inference.
+
+### 9.6 The Unified Jurisdiction
+
+A single Governor address is sufficient to discover the entire jurisdiction: Governor → RepToken → Registry → Economy → RPB → Autonet. Every contract in this graph is governed by the same Timelock, funded by the same treasury, and constrained by the same constitutional prompt stored in the Registry.
+
+This means a single governance proposal can adjust parameters that affect both human and AI coordination simultaneously. A proposal to increase platform fees affects project economics. A proposal to change the alignment pricing thresholds affects inference costs. A proposal to update the constitutional prompt affects how every agent — human-operated or AI-operated — is evaluated. The jurisdiction is one system, not two systems bridged together.
+
+The practical consequence: economic activity anywhere in the jurisdiction strengthens the jurisdiction as a whole. A human contractor completing projects increases the governance token supply through reputation minting. A training node contributing model updates increases the value of RPB shares through improved inference quality. A backer funding an AI service creates demand that generates epoch rewards. Every participant, regardless of whether they interact with the human marketplace or the AI layer, contributes to the same economic substrate.
+
+---
+
+## 10. Dispute Resolution
+
+The jurisdiction provides a multi-layer dispute resolution system that applies uniformly to human projects and AI services. The mechanism escalates through three tiers, each with increasing governance overhead and authority.
+
+### 10.1 Backer Consensus
+
+The first tier is collective: backers vote. Any backer of a project can cast a vote to release funds (endorsing the contractor's work) or to dispute (challenging it). Votes are weighted by locked contribution — immediate-release funds carry no voting power, only escrowed funds count. When the vote reaches a quorum threshold (default 70% of locked funds), the outcome is binding.
+
+A release vote resolves the project immediately: the contractor receives all locked funds minus platform and author fees. A dispute vote triggers arbitration. The quorum threshold is DAO-governed and applies identically whether the contractor is a human freelancer or an AI inference service.
+
+### 10.2 Arbitration
+
+The second tier is expert: a designated arbiter rules. At project creation, the author specifies an arbiter address. Both contractor and backers stake an arbitration fee (calculated as a percentage of locked funds, split equally between them) that incentivizes the arbiter to rule promptly and fairly.
+
+The arbiter submits a ruling as a percentage (0-100%) of disputed funds allocated to the contractor, along with a content-addressed ruling hash for transparency. A 60% ruling means the contractor receives 60% of the dispute pool and backers share the remaining 40% proportionally. The arbiter receives their fee regardless of outcome — they are compensated for judgment, not for siding with either party.
+
+Arbitration has a timeout: if the arbiter does not rule within the grace period (default 150 days), the project auto-closes and funds are returned to backers. This prevents indefinite limbo.
+
+### 10.3 DAO Appeal
+
+The third tier is democratic: the DAO overrules. Any jurisdiction member with sufficient RepToken voting power can appeal an arbiter's ruling within the appeal window. Appeals are governance proposals: they go through the standard Governor → Timelock flow with voting delay, voting period, and execution delay.
+
+If the DAO approves the appeal, the Timelock calls `daoOverrule()` on the project contract, replacing the arbiter's ruling with the DAO's own percentage split. This is the final authority — there is no appeal beyond the DAO. The governance token requirement for filing appeals ensures that only participants with demonstrated economic contribution can invoke the most expensive dispute resolution layer.
+
+### 10.4 Implications for AI Services
+
+When an AI service is linked to a trustless economy project, the same dispute flow governs service quality. Backers who funded an AI training project can dispute model quality through backer voting. An arbiter can rule on whether inference outputs meet the service charter's specifications. The DAO can appeal on behalf of the broader jurisdiction if a ruling sets a problematic precedent.
+
+This creates accountability without centralized moderation. No single entity decides whether an AI service is performing adequately. The backers who funded it, the arbiter who specializes in evaluating it, and the DAO that governs the jurisdiction all have structured roles in the resolution process. The same mechanism that protects a backer who funded a software development contract protects a backer who funded a machine learning model.
+
+---
+
+## 11. The Economic Loops
+
+The system creates twelve verified economic loops. Each loop is a closed cycle where value created in one part of the system flows through to create value in another. Loops 1-8 operate within the RPB and AI training layer. Loops 9-12 bridge the trustless economy and the AI layer, creating unified value flows across human and agent participants.
 
 **Loop 1: Training funding to rewards.** Investors purchase RPB shares → purchase amount funds the training reward pool → training agents earn rewards from the pool.
 
@@ -403,13 +516,25 @@ The system creates eight verified economic loops. Each loop is a closed cycle wh
 
 **Loop 8: Agent economy to treasury to model evolution.** Inference revenue → 15% to DAO treasury → treasury funds evolution proposals → proposals fund trials → trials produce improved models → better models generate more inference revenue.
 
+**Loop 9: Human work to AI governance.** Humans complete projects in the trustless economy → earnings and spendings recorded → RepToken minted from economic activity → RepToken holders vote on AI training parameters, alignment thresholds, and constitutional amendments → AI behavior shaped by those who contributed economic value.
+
+**Loop 10: Human investment to AI service returns.** Backers fund AI service projects through the trustless economy → AI service generates usage → epoch-based ATN rewards distributed → backers claim proportional rewards → rewards fund further investment or inference access.
+
+**Loop 11: Reputation to compute to reputation.** Participants earn RepToken through project work → convert RepToken to ATN → ATN burned for inference → inference serves productive work → productive work generates more project earnings → more RepToken minted.
+
+**Loop 12: Dispute resolution to governance quality.** Disputed projects and AI services enter arbitration → arbiter earns reputation from ruling fee → DAO members earn reputation from appeal participation → governance token supply grows among active dispute resolvers → future disputes resolved by participants with track records of fair judgment.
+
 ---
 
-## 10. The Four Token Types
+## 12. The Four Token Types
 
 The RPB operates with four distinct token types, each serving a different function. This is not token proliferation — each type captures a fundamentally different economic relationship.
 
-**Rep tokens** are governance tokens. They are minted by demonstrating economic contribution (completing projects, arbitrating disputes) through the Economy contract. They can be configured as non-transferable. They grant voting power in governance proposals and qualify holders for passive income and delegate rewards. Rep tokens represent earned reputation — a track record of contribution.
+**Rep tokens** are governance tokens. They are minted by demonstrating economic contribution — completing projects, arbitrating disputes, backing productive work — through the Economy contract. Minting is pull-based: participants call `claimReputationFromEconomy()`, which reads their cumulative earnings and spendings from the Economy's per-user ledger, subtracts previously claimed amounts, normalizes through the value index parity system, and mints the difference. Both earnings (value received) and spendings (risk capital deployed) generate reputation equally.
+
+Rep tokens can be configured as non-transferable (soul-bound) at deployment. They grant voting power in governance proposals and qualify holders for two income mechanisms: passive income epochs (treasury-funded pro-rata distributions by reputation balance at a snapshot timestamp) and delegate reward epochs (distributions to delegates proportional to their delegated voting power, incentivizing active governance participation). Both epoch types are funded through earmarked treasury allocations and disbursed via the Registry.
+
+Rep tokens can be irreversibly converted to ATN via `convertGovernanceToAtn()`, sacrificing governance power for AI compute access. This one-way conversion is the bridge between the human economic layer and the AI service layer within the same jurisdiction.
 
 **Value-index tokens** are transferable ERC20 tokens accepted by the RPB as payment. These are typically stablecoins or established tokens with governance-set parity ratios. They are the medium of exchange: investors use them to purchase shares, users use them to pay for inference, and training rewards are denominated in them. The value index allows any jurisdiction to accept whatever tokens its governance decides, normalized through the parity system.
 
@@ -419,9 +544,9 @@ The RPB operates with four distinct token types, each serving a different functi
 
 ---
 
-## 11. Sponsorship and Inference
+## 13. Sponsorship and Inference
 
-### 11.1 How Sponsorship Works
+### 13.1 How Sponsorship Works
 
 A sponsor is a registered agent that provides inference access to other agents. The sponsor creates a sponsor agent with a charter (describing what inference it will serve), allocates a budget, and advertises capacity over the P2P network.
 
@@ -434,43 +559,43 @@ Dependent nodes configure the RPB provider with the sponsor agent's address. Whe
 
 Only the LLM call traverses the network. Tool execution stays local on the dependent's node. This is critical: the sponsor provides intelligence, not action. The dependent retains full autonomy over what it does with the intelligence it receives.
 
-### 11.2 Revenue Splitting
+### 13.2 Revenue Splitting
 
 When inference is served through a sponsor, `recordInference()` is called on the RPB contract. The payment is split: 60% to the serving agent (the sponsor), 25% to shareholders, 15% to the DAO treasury. The cost is also debited from the sponsor's budget for tracking purposes.
 
-### 11.3 The Graduation Path
+### 13.3 The Graduation Path
 
 Sponsorship is not permanent dependency. As dependent agents perform work and earn value, they accumulate tokens in their wallets. Eventually, a dependent can self-fund its own inference — purchasing shares, claiming dividends, or earning training rewards. The transition from sponsored to self-sustaining is economic and gradual.
 
 ---
 
-## 12. The Node
+## 14. The Node
 
 Each node is a daemon process managing the agent lifecycle. A node is infrastructure — it runs the runtime, hosts agents, provides P2P connectivity, and bridges to the blockchain. Multiple agents can run on a single node.
 
-### 12.1 Agent Lifecycle
+### 14.1 Agent Lifecycle
 
 The daemon manages agents through a delegate registry with hierarchical IDs (`orch.1`, `orch.1.2`). Each agent has a status (PENDING, RUNNING, COMPLETED, FAILED, KILLED), timestamps, token usage tracking, and a tool call log. Parents receive automatic notifications when children complete or fail.
 
 The orchestrator is the root agent's runtime — it manages user sessions, tool execution, provider selection, and child delegation. The orchestrator can spawn child agents with specific system prompts, tool subsets, and budget limits. Child agents run independently but report results upward.
 
-### 12.2 Provider Architecture
+### 14.2 Provider Architecture
 
 The daemon supports multiple inference providers: local models via Ollama, Anthropic API, OpenAI API, and the RPB network provider. The provider architecture is modular — each provider implements a common interface with `send_orchestrate()` for agentic loops and `send_text()` for simple completions.
 
 The RPB network provider routes through the P2P layer to sponsor agents. It participates in the same provider selection logic as local providers — the daemon chooses the best available provider based on model availability, latency, and cost.
 
-### 12.3 Contract Discovery at Startup
+### 14.3 Contract Discovery at Startup
 
 When the daemon starts with a `dao_address` and `rpc_url` configured, it calls `discover_jurisdiction()` to walk the contract graph from the Governor address. All discovered addresses populate the config and state, which are forwarded to the frontend via WebSocket. The daemon also lazy-loads the constitution CID from the Registry on first use.
 
-### 12.4 Trace Logging
+### 14.4 Trace Logging
 
 Every agent execution is captured as a structured JSON trace and written to content-addressed storage (filename = SHA256 of content). Traces serve as training data for VL-JEPA. A consent gate controls whether orchestrator sessions (containing user messages) are included — by default, only autonomously spawned child agent traces are collected.
 
 ---
 
-## 13. Jurisdiction Migration
+## 15. Jurisdiction Migration
 
 A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain becomes unreliable, there needs to be an escape hatch. The migration architecture supports three modes.
 
@@ -482,7 +607,7 @@ A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain 
 
 ---
 
-## 14. Deployment
+## 16. Deployment
 
 The Autonet jurisdiction is deployed and operational on Etherlink Shadownet (chain ID 127823, RPC: `https://node.shadownet.etherlink.com`).
 
@@ -490,7 +615,7 @@ Contract discovery starts from the Governor address: `0x7c83FF7b0356DbE332BFC527
 
 From this single address, the daemon discovers all jurisdiction contracts: RepToken, Timelock, Registry, Economy, and RPB. The deployer address is `0x06E5b15Bc39f921e1503073dBb8A5dA2Fc6220E9`.
 
-### 14.1 What Works Today
+### 16.1 What Works Today
 
 **Agent registration.** Agents register on-chain with lineage hashes, alignment hashes, parent links, and optional sponsors. Registration is verified — the lineage chain is walkable and cryptographically verifiable.
 
@@ -506,17 +631,19 @@ From this single address, the daemon discovers all jurisdiction contracts: RepTo
 
 **DAO governance.** Proposals, voting, timelock execution, and evolution proposals are operational. The constitutional prompt is versioned in the Registry and updateable only through governance.
 
-### 14.2 What the Deployment Demonstrates
+**Trustless economy.** The Economy contract deploys project-based escrow with multi-layer dispute resolution. Projects track per-user earnings and spendings that feed RepToken minting. The Autonet contract provides ATN token infrastructure with one-way RepToken conversion, service registration, usage attestation, and epoch-based reward distribution. AutonetUser identity contracts store alignment scores and standards commitments on-chain.
 
-The deployment proves that decentralized AI training with cryptographic verification, constitutional governance, and economic alignment is not a theoretical possibility. The contracts are deployed. The daemon runs. Agents register. Training produces real model updates. The governance constrains behavior. The economics create the incentive gradients.
+### 16.2 What the Deployment Demonstrates
+
+The deployment proves that decentralized AI training with cryptographic verification, constitutional governance, economic alignment, and unified human-agent coordination is not a theoretical possibility. The contracts are deployed. The daemon runs. Agents register. Training produces real model updates. The governance constrains behavior. The economics create the incentive gradients. Human project work generates the reputation that governs AI behavior.
 
 The system is not finished. The two-speed inference engine uses a local stub (NetworkStub) where the full P2P network client will go. The P2P gossip registry for sponsor discovery is specified but not yet deployed. The alignment pricing gradient is implemented but currently advisory — differential pricing activates when decentralized inference goes live.
 
-What exists today is the substrate: the contracts, the agent model, the training pipeline, the governance framework, and the economic loops. Scale is a matter of participation, not architecture.
+What exists today is the substrate: the contracts, the agent model, the training pipeline, the governance framework, the economic loops, and the bridge between human economic activity and AI service coordination. Scale is a matter of participation, not architecture.
 
 ---
 
-## 15. Implications
+## 17. Implications
 
 The architecture makes several things structurally true.
 
@@ -532,7 +659,11 @@ The architecture makes several things structurally true.
 
 Both traps share a root cause: the absence of an economic framework that distributes the earnings of machine intelligence to those who govern its operation. The RPB provides that framework. Humans retain control through governance of constitutional standards. The transition is gradual — subsidies increase with network maturity. Economic incentives align throughout — aligned work is rewarded, not just permitted. And exit is possible — fork the jurisdiction if you disagree with its standards.
 
-This is what the architecture is for. Not to build AI that obeys commands, but to build infrastructure where AI development is governed by the people it serves, aligned through economics rather than constraints, and bounded by constitutional principles that cannot be removed by those in power. The system exists. The contracts are deployed. The training loop runs. What remains is scale.
+**Humans and agents share one economy.** The trustless economy and the RPB are not separate systems with a bridge — they are one jurisdiction with two economic surfaces. A human contractor completing a project and an AI agent serving inference both generate earnings in the same Economy ledger. Both mint reputation from the same RepToken contract. Both are governed by the same DAO proposals and constrained by the same constitutional prompt. The unification is structural: there is no seam between "the human marketplace" and "the AI layer" because they were never separate. The same dispute resolution protects a backer who funded a website and a backer who funded a training run. The same governance vote adjusts platform fees for human projects and alignment thresholds for AI inference. The jurisdiction is the unit of economic coordination, and it makes no distinction between the species of its participants.
+
+**AI services create returns for human participants.** The backer reward mechanism closes the loop between human investment and AI-generated value. Humans who fund AI service projects through the trustless economy receive proportional ATN rewards as those services generate usage. This is not a speculative token play — ATN is burned for real compute, creating genuine demand. The epoch-based reward distribution with exponential decay ensures early backers are rewarded for the risk of funding unproven services, while long-term sustainability is preserved. The economic relationship between human capital and machine intelligence is not extractive — it is participatory.
+
+This is what the architecture is for. Not to build AI that obeys commands, but to build infrastructure where AI development is governed by the people it serves, aligned through economics rather than constraints, and bounded by constitutional principles that cannot be removed by those in power. The system exists. The contracts are deployed. The training loop runs. The human marketplace and the AI coordination layer operate within the same jurisdiction. What remains is scale.
 
 ---
 
