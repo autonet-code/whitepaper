@@ -378,9 +378,15 @@ The same alignment system directs training effort. `compute_training_incentive()
 
 This is a market mechanism for collective intelligence. Instead of centrally planning what to train, the network prices training rewards to attract effort where it's most needed.
 
-### 8.3 Privacy Preservation
+### 8.3 Privacy Through Abstraction
 
-Alignment checking is local. The user's daemon evaluates alignment using the agent's charter vector and the jurisdiction's constitution vector — both are public. The task content never leaves the node. The network sees only the alignment score, never what the agent is actually doing.
+Most alignment systems face a dilemma: verify behavior or protect privacy. Checking what an agent does requires seeing what it does. The RPB resolves this by operating at a level of abstraction where alignment is verifiable but personal information is structurally unrecoverable.
+
+The mechanism is embedding-space comparison. The VL-JEPA text encoder maps an agent's charter (its system prompt) and its activity traces into high-dimensional vectors. These vectors preserve semantic orientation — whether the agent is doing medical research or writing code, whether its behavior drifts toward or away from constitutional principles — but they destroy the specific content. An activity vector reveals that an agent is performing aligned legal work. It does not reveal whose case, which court, or what strategy. The dimensionality reduction is lossy by design: the embedding captures the category and direction of behavior, not the substance.
+
+Three properties make this privacy guarantee structural rather than policy-based. First, alignment checking is local. The user's daemon evaluates alignment using the agent's charter vector and the jurisdiction's constitution vector — both are public. The task content never leaves the node. Second, only the scalar alignment score — a single number — is reported to the network for pricing purposes. The vectors themselves stay on the node. Third, the alignment hash stored on-chain is a hash of the embedding vector, not the vector itself. Even the compressed semantic representation is never published; only its cryptographic fingerprint is.
+
+The network sees enough to govern — alignment scores, drift detection, pricing tier — without seeing anything it could use to surveil. This is not privacy bolted onto a transparent system. It is privacy that emerges from the choice of abstraction layer. Governance operates in embedding space. Content exists in token space. The two never meet.
 
 In the decentralized inference phase, the network sets inference pricing based on the reported alignment score. Gaming prevention relies on consensus-based integrity verification: peer nodes independently verify outputs over time, and persistent divergence from consensus reduces the agent's bond weight (and therefore its economic standing).
 
