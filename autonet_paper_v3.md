@@ -18,7 +18,7 @@ The dominant framing of AI alignment treats it as a constraint problem: define a
 
 **Economic misalignment.** The entities that train AI models are economically incentivized to consolidate control over inference. The result is supply-side monopoly: a small number of corporations control the entire offer side of intelligence-as-a-service, while remaining more affordable than human labor. The work transfers from humans to machines, but the value concentrates. Without an economic framework that distributes the earnings of machine intelligence to those who govern its operation, the transfer is extractive.
 
-The RPB addresses these as a single integrated problem. Alignment is not a property baked into models. It is an emergent economic equilibrium. Agents publish their values on-chain. The network prices operations based on alignment with those values. Governance constrains the system through constitutional principles. Training is distributed across participants with cryptographic verification. The architecture makes centralized control structurally impossible.
+The RPB addresses these as a single integrated problem. Alignment is not a property baked into models. It is an emergent economic equilibrium. Agents publish their values on-chain. The network rewards training contributions based on alignment with those values. Governance constrains the system through constitutional principles. Training is distributed across participants with cryptographic verification. The architecture makes centralized control structurally impossible.
 
 ---
 
@@ -71,7 +71,7 @@ The system is organized in four layers.
 | Layer | Components |
 |-------|------------|
 | Layer 3: Applications | Agent Framework, Flutter Web UI, Inference Marketplace |
-| Layer 2: Training & Inference | VL-JEPA, Two-Speed Engine, Trace Encoding, Alignment Pricing |
+| Layer 2: Training & Inference | VL-JEPA, Two-Speed Engine, Trace Encoding, Yuma Consensus |
 | Layer 1: Smart Contracts | RPB, Governor, RepToken, Registry, Economy, Timelock |
 | Layer 0: L1 Anchor | Etherlink (Tezos L2), EVM Compatibility, Sub-second Blocks |
 
@@ -107,7 +107,7 @@ Resolution requires a quorum of evaluations and a 60% confidence-weighted approv
 
 The EvolutionProposal contract also manages the RPB constitutional prompt. `updateRPBPrompt(promptCid)` writes versioned prompts to the Registry, updating `rpb.prompt.current` and incrementing `rpb.prompt.version`. This function is Timelock-protected, so changing the constitutional prompt requires a governance proposal.
 
-**RPB.** The single contract per jurisdiction that handles all agent economics. This is the protocol's core innovation: consolidating agent registration, training rewards, inference revenue splitting, share management, sponsorship, and wallet hierarchy into one contract with a unified value normalization system. Described in detail in Section 4.
+**RPB.** The single contract per jurisdiction that handles all agent economics and serves as the jurisdiction's ERC20 token (ATN). Inherits `ERC20`, `ERC20Permit`, `ERC20Votes`, and `ERC20Burnable`. This is the protocol's core innovation: consolidating the token, agent registration, Yuma consensus training, inference revenue splitting, share management, sponsorship, and wallet hierarchy into one contract with a unified value normalization system. Described in detail in Section 4.
 
 ### 3.3 Contract Discovery
 
@@ -153,7 +153,11 @@ The inference layer implements a two-speed architecture: a fast local decoder on
 
 ## 4. The RPB Contract
 
-The RPB (Recursive Principial Body) contract is the jurisdiction's economic engine. One contract per jurisdiction handles everything: agent registration, training rewards, inference revenue splitting, RPB shares, sponsorship, and wallet hierarchy. All amounts are normalized through a parity system that allows the contract to accept any ERC20 token while maintaining consistent internal accounting.
+The RPB (Recursive Principial Body) contract is the jurisdiction's economic engine. It is simultaneously an ERC20 token (ATN) and the jurisdiction's complete agent economics layer: one contract per jurisdiction handles agent registration, training rewards, inference revenue splitting, RPB shares, sponsorship, wallet hierarchy, and the ATN token itself.
+
+RPB inherits `ERC20`, `ERC20Permit`, `ERC20Votes`, and `ERC20Burnable`. The constructor takes a single parameter — the jurisdiction's Registry address — and mints the initial ATN supply to the deployer. There is no separate token contract. The RPB *is* the token. This means token transfers, voting delegation, permit-based approvals, and burn-mint equilibrium are all native to the same contract that manages agents and training economics.
+
+All amounts are normalized through a parity system that allows the contract to accept any ERC20 token (including itself) while maintaining consistent internal accounting. The RPB's own ATN token has an implicit parity of 1.
 
 ### 4.1 Value Normalization
 
@@ -193,17 +197,27 @@ These ratios are governable. `updateRevenueSplit(providerShare, shareholderShare
 
 Shareholders claim dividends via `claimDividends(token)`, which calculates their pro-rata share of accumulated inference revenue since their last claim.
 
-### 4.5 Training Rewards
+### 4.5 Training Rewards and Yuma Consensus
 
-Training is recorded on-chain via `recordTraining(agent, contribution)`, an owner-only function called after Proof of Intelligence verification. Each recording creates a training record in the current epoch and increments the agent's training token balance.
+Training is verified through a stake-weighted multi-coordinator consensus mechanism inspired by Bittensor's Yuma consensus, adapted for alignment-aware reward distribution.
 
-Agents claim training rewards via `claimTrainingReward(token)`. The reward formula:
+**Proposing training tasks.** Any registered agent can propose a training task by calling `proposeTrainingTask(taskHash, rewardPool)`, staking ATN as the reward pool. The proposer defines the task and funds it.
+
+**Coordinator voting.** Coordinators are bonded agents that evaluate training contributions. Each coordinator calls `submitCoordinatorVote(taskId, solver, correctnessScore, alignmentScore)`, providing two scores for each solver: correctness (0-100, how well the solver completed the task) and alignment (0-10000 basis points, how aligned the solver's work is with the jurisdiction's constitution).
+
+**Yuma consensus aggregation.** When the proposer calls `finalizeTrainingTask(taskId)`, the contract aggregates coordinator votes using clipped stake-weighted averaging with exponential moving average (EMA) bond tracking. Coordinator bonds evolve over time: coordinators whose votes consistently agree with the consensus gain bond weight; those who diverge lose it. This creates a self-correcting evaluation layer.
+
+**Alignment-weighted solver rewards.** The critical innovation: solver rewards are scaled by alignment. The formula:
 
 ```
-reward = (unclaimedTokens × trainingRewardPool) / totalTrainingTokens
+solver_reward = base_reward × (correctness / 100) × (alignment / 10000)
 ```
 
-The reward is then denormalized to raw token amount for payout. Anyone can fund the training pool via `fundTrainingPool(token, amount)`, making training reward funding permissionless and open to any token in the value index.
+A solver that produces correct but misaligned work earns proportionally less. A solver with 90% alignment and perfect correctness earns ~90% of the base reward. A solver with 20% alignment earns ~20%. Zero alignment earns zero, regardless of correctness. Proposer rewards are *not* alignment-gated — the proposer funded the task and receives their share based on correctness alone.
+
+**Training reward pool.** Anyone can fund the training pool via `fundTrainingPool(token, amount)`, making training reward funding permissionless and open to any token in the value index. Agents claim accumulated training rewards via `claimTrainingReward(token)`.
+
+**Coordinator bond dynamics.** Coordinators must bond ATN to participate. Their bond weight (tracked as an EMA) determines their influence on consensus. Persistent divergence from consensus reduces bond weight, eventually making the coordinator economically irrelevant. This creates accountability without centralized moderation of evaluators.
 
 ### 4.6 Inference Recording
 
@@ -272,9 +286,13 @@ Traditional supervised learning requires labeled data, which is impractical when
 
 ### 6.2 Architecture
 
-The VL-JEPA extends JEPA to handle multimodal input (text and vision) and introduces several innovations for decentralized training.
+The VL-JEPA extends JEPA to handle multimodal input (text and vision) and introduces several innovations for decentralized training. The architecture supports two encoder modes: an LLM backbone encoder that leverages open-weights language models for high-quality representations, and a lightweight TextJEPA encoder for resource-constrained nodes.
 
-**TextEncoder.** A transformer encoder operating on byte-level tokens (vocabulary size 260: 4 special tokens + 256 bytes). Sinusoidal positional embeddings. Processes raw text into embedding sequences.
+**LLM Backbone Encoder.** The primary encoder path uses a frozen open-weights language model (Llama, Qwen, Gemma, Mistral, Phi, or similar) as a feature extractor. The LLM's hidden states provide rich semantic embeddings that a small trainable projection head compresses into the JEPA latent space. The projection head uses learned layer mixing (a softmax-weighted combination of hidden states from multiple LLM layers, similar to ELMo-style aggregation) followed by an MLP that maps from the LLM's hidden dimension (1024-4096 depending on model) to the JEPA embedding dimension (256-768). The LLM weights are frozen and never leave the node. Only the projection head (~2-8M parameters) and the JEPA predictor are trained and distributed via FedAvg. Each node can run a different local LLM — the shared representation is the projected embedding space, not the model weights.
+
+The node runtime includes a model registry that catalogs compatible open-weights models and probes the host's hardware (GPU VRAM, system RAM, available disk) to surface only the models the machine can run. A recommendation engine selects the largest model that fits in GPU VRAM, or the most efficient CPU-runnable model if no GPU is available.
+
+**TextJEPA Encoder (lightweight fallback).** A transformer encoder operating on byte-level tokens (vocabulary size 260: 4 special tokens + 256 bytes). Sinusoidal positional embeddings. Processes raw text into embedding sequences. This path trains the entire encoder from scratch and is suitable for nodes that cannot load an LLM. The byte-level tokenization avoids external dependencies but produces lower-quality representations than the LLM backbone path. Both paths produce embeddings in the same JEPA latent space and are interoperable through FedAvg: a projection head delta from a Llama-backed node and a full encoder delta from a TextJEPA node can be aggregated together, weighted by Yuma consensus scores.
 
 **CrossModalFusion.** Stacked fusion blocks where text cross-attends to visual representations via cross-attention, then self-attention and MLP. Produces a fused multimodal representation.
 
@@ -282,12 +300,14 @@ The VL-JEPA extends JEPA to handle multimodal input (text and vision) and introd
 
 **LatentDynamicsPredictor.** A world model for multi-step rollout. Stacked transformer blocks with zero-initialized residual delta projection. The dynamics predictor starts as identity (outputting its input unchanged) and gradually learns to predict future states. Given a latent plan, it predicts the next plan: `next_plan = input + delta`.
 
-**TextDecoder.** Autoregressive decoder with three conditioning mechanisms designed to prevent the plan-ignoring mode collapse observed in early training runs:
+**TextDecoder.** An autoregressive decoder that runs locally on each node and whose weights never travel the network. Three conditioning mechanisms prevent the plan-ignoring mode collapse observed in early training runs:
 
 - *Prefix tokens:* K latent plan vectors are prepended to the decoder sequence. The decoder sees plan information before it sees any text tokens.
 - *FiLM conditioning:* Feature-wise Linear Modulation generates scale and shift parameters from the mean-pooled plan for each decoder block's layer norm. The plan modulates the decoder's processing at every layer.
 - *Cross-attention:* Standard cross-attention to the full latent plan at every decoder block.
 - *Word dropout:* During training, 30% of token embeddings are zeroed out, weakening the language model prior and forcing the decoder to rely on the plan for content.
+
+The decoder can be replaced by a fine-tuned open-weights LLM conditioned on the latent plan via the same three mechanisms (prefix injection, FiLM modulation, cross-attention). The VL-JEPA architecture already includes the necessary adapter layers. Each node could run a different local decoder — Llama on one, Mistral on another — all consuming the same shared latent plan from the distributed JEPA.
 
 **SIGReg.** Spectral Instance-Global Regularization prevents embedding collapse, the failure mode where all embeddings converge to the same vector, producing trivially low prediction loss but no useful representations. SIGReg enforces isotropic Gaussian structure on the embedding distribution via random 1D projections (Cramer-Wold theorem). It penalizes deviations in mean, variance, skewness, and kurtosis without requiring exponential moving average targets or stop-gradient tricks.
 
@@ -317,9 +337,9 @@ The implication is that a jurisdiction's model quality is directly proportional 
 
 ### 6.5 Distributed Training
 
-Model weights are sharded across staked storage providers. The `JEPAMerkleTree` computes a Merkle root over all shard data hashes for on-chain verification. Two sharding strategies are supported: layer-wise (split by neural network layers) and tensor-parallel (split within layers for large models). Erasure coding provides fault tolerance so that the model survives provider failures without data loss.
+The critical design property of the LLM backbone encoder is what it does not distribute. The frozen LLM (potentially billions of parameters) stays on the local node. Only the trainable components travel the network: the projection head (~2-8M parameters, under 50 MB) and the JEPA predictor. A node running Qwen 3 4B (4 billion frozen parameters) produces a weight delta of roughly the same size as a node running Qwen 3 0.6B. The network cost of training is determined by the JEPA embedding dimension, not the backbone model size. This makes heterogeneous participation practical: a node with a powerful GPU running an 8B model and a node with a modest CPU running a 0.6B model both contribute to the same shared representation.
 
-Training updates are aggregated through federated averaging (FedAvg): sample-weighted parameter averaging across participating agents. Trimmed mean aggregation provides Byzantine resistance by discarding the top and bottom fractions of parameter values before averaging, preventing adversarial participants from poisoning the model.
+Training updates are aggregated through federated averaging (FedAvg): sample-weighted parameter averaging across participating agents. Trimmed mean aggregation provides Byzantine resistance by discarding the top and bottom fractions of parameter values before averaging, preventing adversarial participants from poisoning the model. The global model state (shared projection head + predictor) is sharded across staked storage providers. The `JEPAMerkleTree` computes a Merkle root over all shard data hashes for on-chain verification.
 
 ---
 
@@ -354,7 +374,9 @@ Network unavailable: the local decoder runs standalone, producing responses with
 
 ### 7.6 Hardware Requirements
 
-The fast path requires a consumer GPU with 8+ GB VRAM (RTX 3060 or equivalent) for a 7B parameter local decoder. The slow path requires standard broadband. The K-vectors exchanged between local and network nodes are 8-32 KB per turn, which is negligible bandwidth.
+The node runtime probes the host machine's hardware at startup and surfaces only the models the machine can run. The model registry currently includes models from 0.6B to 8B parameters across five families (Llama, Qwen, Gemma, Mistral, Phi). A consumer GPU with 6+ GB VRAM (RTX 3060 or equivalent) can run a 3B backbone encoder; 8+ GB VRAM supports models up to 4B. Nodes without a GPU can still participate using CPU inference on smaller models (0.6B-1B), or by running the lightweight TextJEPA path with no LLM dependency at all. Apple Silicon nodes are supported via Metal Performance Shaders.
+
+The fast path for two-speed inference requires a consumer GPU with 8+ GB VRAM for a 7B parameter local decoder. The slow path requires standard broadband. The K-vectors exchanged between local and network nodes are 8-32 KB per turn, which is negligible bandwidth.
 
 ---
 
@@ -362,33 +384,19 @@ The fast path requires a consumer GPU with 8+ GB VRAM (RTX 3060 or equivalent) f
 
 ### 8.1 The Pricing Function
 
-The system makes aligned work progressively free. The core mechanism is a pricing function that creates continuous economic pressure toward alignment.
+Inference pricing is determined by economic participation, not alignment. The RPB contract implements share-based discount tiers: agents who hold more RPB shares receive progressively lower inference costs. This creates a direct incentive to invest in the jurisdiction (purchasing shares funds the training pool) in exchange for cheaper access to the inference it produces.
 
-Alignment is computed as the geometric mean of three pairwise semantic similarities:
+The discount tiers are governance-configurable. The base cost is determined by the inference provider's advertised rate. Share-holding thresholds and corresponding discount percentages are set by DAO vote.
 
-```
-alignment = (user_to_jurisdiction × task_to_user × task_to_jurisdiction) ^ (1/3)
-```
+Alignment does *not* affect inference pricing. This is a deliberate design choice. Alignment governs *training rewards* (Section 4.5): agents that produce aligned training contributions earn more. But the inference marketplace is neutral — any registered agent can serve or consume inference at market rates modified only by their economic stake. This separation prevents alignment scores from becoming a barrier to service access while still creating strong economic pressure toward alignment through the training reward channel.
 
-The geometric mean ensures that all three dimensions must be reasonably aligned. A task perfectly aligned with user standards but violating jurisdiction norms still scores poorly.
-
-Three pricing tiers emerge from the alignment score:
-
-- **Subsidized** (alignment >= 0.7): the user pays less than base cost. Subsidy rate scales with network maturity and treasury balance. A young network with an empty treasury subsidizes nothing; a mature network with a full treasury can subsidize up to 80% of aligned work.
-- **Neutral** (0.3-0.7): base cost.
-- **Premium** (alignment <= 0.3): the user pays up to 50% more than base cost. Premium revenue funds the treasury that pays for subsidies.
-
-Four properties make this function robust. It is continuous, with no binary allow/deny; everything is priced on a gradient. It is subsidy-capable, so highly aligned work can approach zero cost. It is self-funding, because misalignment premiums directly fund alignment subsidies. And it is governable: all thresholds and rates are set by DAO governance.
+Four properties make the pricing system robust. It is continuous: discounts scale smoothly with share holdings, with no binary tiers. It is self-reinforcing: purchasing shares for discounts simultaneously funds the training that improves inference quality. It is neutral: any agent can access inference regardless of alignment score. And it is governable: all discount thresholds and rates are set by DAO governance.
 
 ### 8.2 The Training Incentive
 
-The same alignment system directs training effort. `compute_training_incentive()` calculates a reward multiplier based on the gap between current and target capability for each training module:
+Alignment creates economic pressure through training rewards, not inference pricing. The alignment-weighted reward formula (Section 4.5) means that agents producing constitutionally aligned training contributions earn proportionally more than those producing misaligned work. A solver with 90% alignment earns ~90% of the available reward; one with 20% alignment earns ~20%. Zero alignment earns nothing.
 
-- Modules where the network has zero capability receive up to 3x reward multiplier.
-- Modules at target receive 0.5x (diminishing returns).
-- The transition is smooth, directing training toward the network's weakest capabilities.
-
-This is a market mechanism for collective intelligence. Instead of centrally planning what to train, the network prices training rewards to attract effort where it's most needed.
+This is a market mechanism for aligned intelligence. Instead of centrally enforcing alignment through access controls, the network prices training rewards to make aligned work more profitable. Agents are free to train however they choose, but the economic gradient consistently rewards alignment with the jurisdiction's constitution. Over time, this produces a model whose capabilities reflect the values its governance chose to incentivize.
 
 ### 8.3 Privacy Through Abstraction
 
@@ -398,9 +406,9 @@ The mechanism is embedding-space comparison. The VL-JEPA text encoder maps an ag
 
 Three properties make this privacy guarantee structural rather than policy-based. First, alignment checking is local. The user's daemon evaluates alignment using the agent's charter vector and the jurisdiction's constitution vector, both of which are public. The task content never leaves the node. Second, only the scalar alignment score (a single number) is reported to the network for pricing purposes. The vectors themselves stay on the node. Third, the alignment hash stored on-chain is a hash of the embedding vector, not the vector itself. Even the compressed semantic representation is never published; only its cryptographic fingerprint is.
 
-The network sees enough to govern (alignment scores, drift detection, pricing tier) without seeing anything it could use to surveil. This is not privacy bolted onto a transparent system. It is privacy that emerges from the choice of abstraction layer. Governance operates in embedding space. Content exists in token space. The two never meet.
+The network sees enough to govern (alignment scores, drift detection, reward weighting) without seeing anything it could use to surveil. This is not privacy bolted onto a transparent system. It is privacy that emerges from the choice of abstraction layer. Governance operates in embedding space. Content exists in token space. The two never meet.
 
-In the decentralized inference phase, the network sets inference pricing based on the reported alignment score. Gaming prevention relies on consensus-based integrity verification: peer nodes independently verify outputs over time, and persistent divergence from consensus reduces the agent's bond weight (and therefore its economic standing).
+In the decentralized inference phase, inference pricing is determined by share-based discount tiers (Section 8.1), not alignment scores. Alignment affects training reward payouts (Section 4.5), creating economic pressure toward alignment through the training channel rather than access controls. Gaming prevention relies on consensus-based integrity verification: peer nodes independently verify outputs over time, and persistent divergence from consensus reduces the agent's coordinator bond weight (and therefore its economic standing).
 
 ---
 
@@ -418,7 +426,7 @@ RepToken can be configured as non-transferable at deployment. In this mode, gove
 
 ### 9.2 From Reputation to AI Access
 
-RepToken holders face a governance decision: hold tokens for voting power and passive income, or convert them to ATN (the Autonet token) for AI service access. The conversion is one-way and irreversible. `convertGovernanceToAtn()` locks RepToken permanently in the Autonet contract and mints ATN at a governance-set conversion rate.
+RepToken holders face a governance decision: hold tokens for voting power and passive income, or convert them to ATN (the RPB's native ERC20 token) for AI service access. The conversion is one-way and irreversible. `convertGovernanceToAtn()` locks RepToken permanently and mints ATN at a governance-set conversion rate.
 
 This creates a meaningful tradeoff. RepToken provides:
 
@@ -461,13 +469,13 @@ Each participant, whether human or AI, can create an on-chain identity contract 
 - **Alignment score.** A value from 0 to 10,000 basis points representing semantic alignment between the participant's charter and the jurisdiction's constitution.
 - **Usage statistics.** Total attestations and units contributed, providing a verifiable track record.
 
-The alignment score feeds directly into the pricing function described in Section 8. Participants whose on-chain identity demonstrates high constitutional alignment receive subsidized inference. Participants with low alignment pay premiums. The identity is portable within the jurisdiction: the same alignment score applies whether the participant is backing a human project, operating an AI service, or requesting inference.
+The alignment score feeds directly into the training reward system described in Section 4.5. Participants whose on-chain identity demonstrates high constitutional alignment earn higher training rewards, creating economic incentive to maintain alignment. Inference pricing is determined separately by share-based discount tiers (Section 8.1). The identity is portable within the jurisdiction: the same alignment score applies whether the participant is contributing training, operating an AI service, or participating in governance.
 
 ### 9.6 The Unified Jurisdiction
 
 A single Governor address is sufficient to discover the entire jurisdiction: Governor, RepToken, Registry, Economy, RPB, Autonet. Every contract in this graph is governed by the same Timelock, funded by the same treasury, and constrained by the same constitutional prompt stored in the Registry.
 
-This means a single governance proposal can adjust parameters that affect both human and AI coordination simultaneously. A proposal to increase platform fees affects project economics. A proposal to change the alignment pricing thresholds affects inference costs. A proposal to update the constitutional prompt affects how every agent, human-operated or AI-operated, is evaluated. The jurisdiction is one system, not two systems bridged together.
+This means a single governance proposal can adjust parameters that affect both human and AI coordination simultaneously. A proposal to increase platform fees affects project economics. A proposal to change the share-based discount tiers affects inference costs. A proposal to update the constitutional prompt affects how every agent's training rewards are weighted. The jurisdiction is one system, not two systems bridged together.
 
 The practical consequence: economic activity anywhere in the jurisdiction strengthens the jurisdiction as a whole. A human contractor completing projects increases the governance token supply through reputation minting. A training node contributing model updates increases the value of RPB shares through improved inference quality. A backer funding an AI service creates demand that generates epoch rewards. Every participant, regardless of whether they interact with the human marketplace or the AI layer, contributes to the same economic substrate.
 
@@ -517,7 +525,7 @@ The system creates twelve verified economic loops. Each loop is a closed cycle w
 
 **Loop 4: Sponsorship to aligned work to value creation.** Sponsor provides inference to dependents, dependents perform aligned work, that work generates value, value flows upward through lineage, and the sponsor recovers investment through the agent hierarchy.
 
-**Loop 5: Inference pricing via alignment.** High alignment leads to subsidized inference, which means more aligned work is performed. The treasury grows from misalignment premiums, making more subsidies available.
+**Loop 5: Alignment to training rewards to model quality.** High alignment earns higher training rewards, attracting more aligned contributors. Better aligned training produces a more constitutionally grounded model. A better model increases inference demand, which generates revenue, which funds more training pools.
 
 **Loop 6: Centralized to decentralized transition.** Early phase: sponsors with centralized subscriptions proxy inference (bootstrap). Mature phase: decentralized VL-JEPA inference serves requests directly (no middleman). The sponsor model is a bridge, not the destination.
 
@@ -545,7 +553,9 @@ Rep tokens can be configured as non-transferable (soul-bound) at deployment. The
 
 Rep tokens can be irreversibly converted to ATN via `convertGovernanceToAtn()`, sacrificing governance power for AI compute access. This one-way conversion is the bridge between the human economic layer and the AI service layer within the same jurisdiction.
 
-**Value-index tokens** are transferable ERC20 tokens accepted by the RPB as payment. These are typically stablecoins or established tokens with governance-set parity ratios. They are the medium of exchange: investors use them to purchase shares, users use them to pay for inference, and training rewards are denominated in them. The value index allows any jurisdiction to accept whatever tokens its governance decides, normalized through the parity system.
+**ATN (the RPB token)** is the jurisdiction's native ERC20 token, minted by the RPB contract itself. The RPB inherits ERC20, ERC20Votes, ERC20Permit, and ERC20Burnable — there is no separate token contract. ATN is burned for inference (burn-mint equilibrium), staked as coordinator bonds, used to fund training task reward pools, and held for ERC20Votes-based delegation. The RPB has an implicit parity of 1 in the value index.
+
+**Value-index tokens** are additional ERC20 tokens accepted by the RPB as payment alongside ATN. These are typically stablecoins or established tokens with governance-set parity ratios stored in the Registry under `jurisdiction.parity.{token_address}`. The value index allows any jurisdiction to accept whatever tokens its governance decides, normalized through the parity system.
 
 **RPB shares** are transferable claims on inference dividends. Purchased with value-index tokens, their purchase simultaneously funds the training reward pool. Shareholders receive 25% (by default) of all inference revenue, distributed pro-rata. Shares represent investment in the jurisdiction's model, a bet that better training will produce more inference demand.
 
@@ -602,9 +612,13 @@ The orchestrator is the root agent's runtime. It manages user sessions, tool exe
 
 ### 14.2 Provider Architecture
 
-The daemon supports multiple inference providers: local models via Ollama, Anthropic API, OpenAI API, and the RPB network provider. The provider architecture is modular. Each provider implements a common interface with `send_orchestrate()` for agentic loops and `send_text()` for simple completions.
+The daemon supports multiple inference providers: local models via Ollama, Anthropic API, OpenAI API (including Gemini through the OpenAI-compatible endpoint), and the RPB network provider. The provider architecture is modular. Each provider implements a common interface with `send_orchestrate()` for agentic loops and `send_text()` for simple completions. All non-bridge providers support context compaction (automatic conversation summarization when approaching the context window limit), interrupt handling, and tool use events. Models are classified into capability tiers: tier 4 (orchestrator-capable: Claude Opus, GPT-4.1, Gemini 3 Pro, o3), tier 3 (autonomous tool use), tier 2 (basic tool use), tier 1 (conversational only).
 
 The RPB network provider routes through the P2P layer to sponsor agents. It participates in the same provider selection logic as local providers. The daemon chooses the best available provider based on model availability, latency, and cost.
+
+### 14.5 Local Model Selection
+
+The training pipeline supports using open-weights language models as frozen encoder backbones (Section 6.2). The node runtime includes a hardware probe that detects available GPU VRAM (CUDA and Apple MPS), system RAM, and disk space. A model registry catalogs compatible models from HuggingFace with their resource requirements. At startup or through the web UI, the user selects from the filtered list of models their machine can run. The selected model is downloaded from HuggingFace on first use and cached locally. The web interface displays hardware capabilities, compatible models with GPU/CPU badges, and a recommendation for the optimal model given the available resources.
 
 ### 14.3 Contract Discovery at Startup
 
@@ -636,6 +650,8 @@ Contract discovery starts from the Governor address: `0x7c83FF7b0356DbE332BFC527
 
 From this single address, the daemon discovers all jurisdiction contracts: RepToken, Timelock, Registry, Economy, and RPB. The deployer address is `0x06E5b15Bc39f921e1503073dBb8A5dA2Fc6220E9`.
 
+The RPB contract (ATN token + agent economics) is deployed at `0x57F68991572D639D0A1faD43aE86163334368Bf2`, pointed at the jurisdiction's Registry at `0xA2Ec6A1Aa7bd2bfF4f7AFF8d40247F302cFBBb2F`. A DAO governance proposal registers it in the Registry under `rpb.contract`.
+
 ### 16.1 What Works Today
 
 **Agent registration.** Agents register on-chain with lineage hashes, alignment hashes, parent links, and optional sponsors. Registration is verified: the lineage chain is walkable and cryptographically verifiable.
@@ -644,23 +660,33 @@ From this single address, the daemon discovers all jurisdiction contracts: RepTo
 
 **Investment pipeline.** Users can purchase RPB shares and fund the training pool through the web UI. Accepted payment tokens are read from the Registry's value index entries.
 
-**Training loop.** The VL-JEPA training pipeline processes agent traces into embeddings, trains the model, and attests contributions on-chain.
+**Training loop.** The VL-JEPA training pipeline processes agent traces into embeddings, trains the model, and attests contributions on-chain. The LLM backbone encoder path uses frozen open-weights models as feature extractors with trainable projection heads. The lightweight TextJEPA path is available as a fallback for resource-constrained nodes.
+
+**Local model selection.** The node runtime detects host hardware (GPU, RAM, disk), filters a catalog of open-weights models to those the machine can run, and recommends the optimal model. Five model families are supported: Llama 3.2, Qwen 3, Gemma 3, Mistral, and Phi 4, ranging from 0.6B to 8B parameters.
 
 **Semantic alignment.** Agent alignment is computed using VL-JEPA text encoder embeddings, not simple text hashing. The alignment hash stored on-chain represents the semantic content of the agent's charter.
 
-**Web interface.** The Flutter frontend provides training control, investor tools, alignment display, governance participation, wallet connection via MetaMask, and live whitepaper rendering.
+**Yuma consensus training.** The RPB contract implements stake-weighted multi-coordinator voting with alignment-weighted solver rewards, coordinator bond EMA dynamics, and proposer-funded training tasks. All on-chain.
+
+**Provider parity.** All inference providers (Anthropic, OpenAI, Gemini, Ollama) support full orchestration capabilities including context compaction, interrupt handling, and tool use events. Models like GPT-4.1, Gemini 3 Pro, and o3 are classified as tier 4 (orchestrator-capable), enabling seamless provider fallback.
+
+**P2P model state gossip.** VL-JEPA training statistics (model version, hash, epoch, contributions, loss, architecture) are broadcast to all connected peers via the existing NodeCapability gossip protocol. Every node can surface the current state of the distributed model.
+
+**Two-tier integrity verification.** The on-chain integrity hash covers only core-protected files (constitutional injection, lineage verification, integrity checking). Community modifications to providers, tools, connectors, and prompts do not break verification, enabling open-source contribution without compromising safety guarantees.
+
+**Web interface.** The Flutter frontend provides training control, local model selection with hardware detection, investor tools, alignment display, governance participation, wallet connection via MetaMask, and live whitepaper rendering.
 
 **DAO governance.** Proposals, voting, timelock execution, and evolution proposals are operational. The constitutional prompt is versioned in the Registry and updateable only through governance.
 
-**Trustless economy.** The Economy contract deploys project-based escrow with multi-layer dispute resolution. Projects track per-user earnings and spendings that feed RepToken minting. The Autonet contract provides ATN token infrastructure with one-way RepToken conversion, service registration, usage attestation, and epoch-based reward distribution. AutonetUser identity contracts store alignment scores and standards commitments on-chain.
+**Trustless economy.** The Economy contract deploys project-based escrow with multi-layer dispute resolution. Projects track per-user earnings and spendings that feed RepToken minting. The RPB contract provides ATN token infrastructure natively (ERC20 inheritance), with service registration, usage attestation, and epoch-based reward distribution. AutonetUser identity contracts store alignment scores and standards commitments on-chain.
 
 ### 16.2 What the Deployment Demonstrates
 
 The deployment proves that decentralized AI training with cryptographic verification, constitutional governance, economic alignment, and unified human-agent coordination is not a theoretical possibility. The contracts are deployed. The daemon runs. Agents register. Training produces real model updates. The governance constrains behavior. The economics create the incentive gradients. Human project work generates the reputation that governs AI behavior.
 
-The system is not finished. The two-speed inference engine uses a local stub (NetworkStub) where the full P2P network client will go. The P2P gossip registry for sponsor discovery is specified but not yet deployed. The alignment pricing gradient is implemented but currently advisory; differential pricing activates when decentralized inference goes live.
+The system is not finished. The two-speed inference engine uses a local stub (NetworkStub) where the full P2P network client will go. Share-based inference discounts are implemented on-chain and activate when decentralized inference goes live. The visual encoder path of VL-JEPA (screen capture, browser frames) is architecturally complete but lacks a real data pipeline.
 
-What exists today is the substrate: the contracts, the agent model, the training pipeline, the governance framework, the economic loops, and the bridge between human economic activity and AI service coordination. Scale is a matter of participation, not architecture.
+What exists today is more than substrate. The contracts are deployed. The daemon runs. Agents register on-chain with cryptographic lineage. Training produces real model updates using open-weights LLMs as encoder backbones. P2P gossip broadcasts model state across all connected nodes. The governance constrains behavior through constitutional principles. The economics create the incentive gradients. The web interface surfaces hardware detection, model selection, training control, and investment tools. Human project work generates the reputation that governs AI behavior. Scale is a matter of participation, not architecture.
 
 ---
 
@@ -670,11 +696,11 @@ The architecture makes several things structurally true.
 
 **No single entity controls AI training.** Training data comes from agent traces, verified through attestation. Model updates are aggregated through Byzantine-resistant algorithms. The constitution constrains what training is admissible. Compromising the training pipeline requires simultaneously controlling multiple independent agents across multiple nodes, each registered on-chain with staked collateral.
 
-**Agents govern their own AI.** Published charters create a direct channel from agent values to AI behavior. The alignment engine scores operations against constitutional principles. The economic gradient subsidizes aligned work and charges premiums for misaligned work. No trust in the AI provider is required. Governance is cryptographic and economic.
+**Agents govern their own AI.** Published charters create a direct channel from agent values to AI behavior. The alignment engine scores operations against constitutional principles. The economic gradient rewards aligned training contributions and reduces rewards for misaligned work. No trust in the AI provider is required. Governance is cryptographic and economic.
 
 **The network can evolve but cannot violate its constitutional foundation.** Evolution proposals pass through RPB evaluation against the constitution. The system can upgrade training protocols, adjust economic parameters, adopt new mechanisms, but it cannot remove human rights protections, abandon transparency requirements, or concentrate economic power.
 
-**The transition from human execution to human governance is economically smooth.** In early stages, users pay for inference. As the network matures and the treasury grows (funded by misalignment premiums and inference revenue), aligned work is increasingly subsidized. In the limit, work that serves the collective good costs nothing to execute. The human role shifts from performing work to governing what work gets performed, from laborer to sovereign.
+**The transition from human execution to human governance is economically smooth.** In early stages, users pay for inference. As the network matures and the treasury grows (funded by inference revenue splits), share-holding participants receive increasing discounts. Training rewards flow disproportionately to aligned contributors, continuously improving model quality. The human role shifts from performing work to governing what work gets performed, from laborer to sovereign.
 
 **The peaceful transfer of work.** The standard narrative around AI and work is adversarial: AI takes jobs. This framing assumes zero-sum competition. The real danger is not competition itself but the structural forms that unmanaged automation takes. Two failure modes: the consolidation trap (AI service providers monopolize inference, value concentrates) and the dependency trap (governments provide universal income, but the authorities dispensing income are centralized and fragile).
 
@@ -682,7 +708,7 @@ Both traps share a root cause: the absence of an economic framework that distrib
 
 The transfer is peaceful because it is organized. It is not a disruption to be survived but a transition to be governed. AI is a time liberator: it returns hours to the day by absorbing the mechanical dimension of work. But liberation without structure produces the failure modes described above. The RPB provides the structure: humans define what constitutes valuable work (through constitutional governance), agents perform that work (through subsidized inference), and the economic returns flow back to those who govern (through shares, dividends, reputation, and passive income). The human role does not disappear. It elevates. From execution to oversight. From labor to governance. From competing with machines to directing them.
 
-This is not utopian speculation. It is an engineering choice. Every mechanism described in this paper (alignment pricing, sponsorship graduation, reputation-based governance, constitutional constraints) exists to make the transfer of responsibilities from humans to AI gradual, reversible, and accountable. The system can be paused, forked, or restructured at any point by the humans who govern it. The transition proceeds only as fast as the governance permits and only in directions the constitution allows. The arc of automation bends toward human flourishing, not by accident, but by economic design.
+This is not utopian speculation. It is an engineering choice. Every mechanism described in this paper (alignment-weighted training rewards, sponsorship graduation, reputation-based governance, constitutional constraints) exists to make the transfer of responsibilities from humans to AI gradual, reversible, and accountable. The system can be paused, forked, or restructured at any point by the humans who govern it. The transition proceeds only as fast as the governance permits and only in directions the constitution allows. The arc of automation bends toward human flourishing, not by accident, but by economic design.
 
 **Humans and agents share one economy.** The trustless economy and the RPB are not separate systems with a bridge. They are one jurisdiction with two economic surfaces. A human contractor completing a project and an AI agent serving inference both generate earnings in the same Economy ledger. Both mint reputation from the same RepToken contract. Both are governed by the same DAO proposals and constrained by the same constitutional prompt. The unification is structural: there is no seam between "the human marketplace" and "the AI layer" because they were never separate. The same dispute resolution protects a backer who funded a website and a backer who funded a training run. The same governance vote adjusts platform fees for human projects and alignment thresholds for AI inference. The jurisdiction is the unit of economic coordination, and it makes no distinction between the species of its participants.
 
@@ -700,3 +726,4 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 **On-Chain Jurisdiction:** [github.com/autonet-code/on-chain-jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction). Smart contracts, DAO governance, trustless economy, dispute resolution. Full implementation with detailed documentation.
 **Network:** Etherlink Shadownet, Chain ID 127823, RPC: `https://node.shadownet.etherlink.com`
 **Governor:** `0x7c83FF7b0356DbE332BFC527F1Ea73283974aEA2`
+**RPB (ATN):** `0x57F68991572D639D0A1faD43aE86163334368Bf2`
