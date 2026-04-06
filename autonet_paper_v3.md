@@ -73,13 +73,13 @@ The system is organized in four layers.
 | Layer 3: Applications | Agent Framework, Flutter Web UI, Inference Marketplace |
 | Layer 2: Training & Inference | VL-JEPA, Two-Speed Engine, Trace Encoding, Yuma Consensus |
 | Layer 1: Smart Contracts | RPB, Governor, RepToken, Registry, Economy, Timelock |
-| Layer 0: L1 Anchor | Etherlink (Tezos L2), EVM Compatibility, Sub-second Blocks |
+| Layer 0: L1 Anchor | Any EVM Chain, Sub-second Blocks, Low Gas Costs |
 
 ### 3.1 Layer 0: L1 Anchor
 
-The RPB runs on Etherlink Shadownet, an EVM-compatible Layer 2 built on Tezos. Etherlink provides sub-second block times and negligible gas costs while inheriting Tezos L1 security for settlement finality. The choice is ideological as well as practical: Tezos has a formal on-chain amendment process where the chain itself can be upgraded through governance votes without hard forks. This mirrors the RPB's own constitutional governance model.
+The RPB is chain-agnostic: it deploys to any EVM-compatible network. The only requirements are low gas costs and fast block times, since a single training cycle involves dozens of on-chain transactions — agent registrations, training attestations, inference recordings, reward claims, share purchases. Ethereum L1 gas prices make this prohibitive; any L2 or alt-L1 with sub-dollar transaction costs is viable.
 
-Why not Ethereum mainnet? A single training cycle involves dozens of on-chain transactions: agent registrations, training attestations, inference recordings, reward claims, share purchases. At Ethereum L1 gas prices, this is prohibitive. Etherlink provides the same EVM execution environment at a fraction of the cost.
+The jurisdiction's smart contracts use standard OpenZeppelin primitives (Governor, TimelockController, ERC20Votes) and require no chain-specific features. A jurisdiction can be deployed on one chain and later migrated or multi-anchored to others through governance proposals.
 
 ### 3.2 Layer 1: Smart Contracts
 
@@ -463,7 +463,7 @@ Both paths terminate in ATN, which can be used for further inference requests, s
 
 ### 9.5 Per-Agent Identity and Alignment
 
-Each participant, whether human or AI, can create an on-chain identity contract via `AutonetUser`. This contract stores:
+Each participant, whether human or AI, registers as an agent on the RPB contract. The on-chain record stores:
 
 - **Standards agreement hash.** A cryptographic commitment to the jurisdiction's constitutional standards at the time of registration.
 - **Alignment score.** A value from 0 to 10,000 basis points representing semantic alignment between the participant's charter and the jurisdiction's constitution.
@@ -473,7 +473,7 @@ The alignment score feeds directly into the training reward system described in 
 
 ### 9.6 The Unified Jurisdiction
 
-A single Governor address is sufficient to discover the entire jurisdiction: Governor, RepToken, Registry, Economy, RPB, Autonet. Every contract in this graph is governed by the same Timelock, funded by the same treasury, and constrained by the same constitutional prompt stored in the Registry.
+A single Governor address is sufficient to discover the entire jurisdiction: Governor, RepToken, Registry, Economy, RPB. Every contract in this graph is governed by the same Timelock, funded by the same treasury, and constrained by the same constitution stored on-chain in the RPB contract.
 
 This means a single governance proposal can adjust parameters that affect both human and AI coordination simultaneously. A proposal to increase platform fees affects project economics. A proposal to change the share-based discount tiers affects inference costs. A proposal to update the constitutional prompt affects how every agent's training rewards are weighted. The jurisdiction is one system, not two systems bridged together.
 
@@ -644,13 +644,9 @@ A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain 
 
 ## 16. Deployment
 
-The Autonet jurisdiction is deployed and operational on Etherlink Shadownet (chain ID 127823, RPC: `https://node.shadownet.etherlink.com`).
+A jurisdiction is deployed by deploying the DAO suite (Governor, Timelock, Registry, Economy, RepToken) followed by the RPB contract, which is linked to the Registry via a governance proposal. The deployer retains no privilege after deployment — all authority transfers to the DAO's Timelock.
 
-Contract discovery starts from the Governor address: `0x7c83FF7b0356DbE332BFC527F1Ea73283974aEA2`
-
-From this single address, the daemon discovers all jurisdiction contracts: RepToken, Timelock, Registry, Economy, and RPB. The deployer address is `0x06E5b15Bc39f921e1503073dBb8A5dA2Fc6220E9`.
-
-The RPB contract (ATN token + agent economics) is deployed at `0x57F68991572D639D0A1faD43aE86163334368Bf2`, pointed at the jurisdiction's Registry at `0xA2Ec6A1Aa7bd2bfF4f7AFF8d40247F302cFBBb2F`. A DAO governance proposal registers it in the Registry under `rpb.contract`.
+Contract discovery starts from a single Governor address. From this address, the daemon discovers all jurisdiction contracts: RepToken, Timelock, Registry, Economy, and RPB. No hardcoded addresses or chain-specific configuration is required beyond the RPC endpoint and Governor address.
 
 ### 16.1 What Works Today
 
@@ -724,6 +720,4 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 **Author:** [eightrice.xyz](https://eightrice.xyz)
 **Source:** [github.com/autonet-code](https://github.com/autonet-code)
 **On-Chain Jurisdiction:** [github.com/autonet-code/on-chain-jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction). Smart contracts, DAO governance, trustless economy, dispute resolution. Full implementation with detailed documentation.
-**Network:** Etherlink Shadownet, Chain ID 127823, RPC: `https://node.shadownet.etherlink.com`
-**Governor:** `0x7c83FF7b0356DbE332BFC527F1Ea73283974aEA2`
-**RPB (ATN):** `0x57F68991572D639D0A1faD43aE86163334368Bf2`
+**Network:** Any EVM-compatible chain (see README for current testnet deployment)
