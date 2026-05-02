@@ -752,6 +752,28 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 
 ---
 
+## 18. Related Work
+
+The world model substrate combines several research lines that have so far traveled separately. This section places it in context.
+
+**Persistent reasoning graphs.** AutoPrunedRetriever (2025) and Graph-Memoized Reasoning (2025) build entity-relation graphs that grow across queries and serve later inference through retrieval rather than fresh generation. They establish that procedural knowledge can accumulate across tasks rather than being regenerated each time. They are not debate structures, single-system rather than federated, and operate without economic incentives for contribution.
+
+**Argumentation frameworks.** The bipolar argumentation literature (Dung's frameworks; QuAD; gradual semantics; argument strength via score propagation) provides the formal basis for PRO/CON debate trees with quantitative resolution. Recent work on Argumentative LLMs (2024) and Debate-on-Graph (AAAI 2025) applies these frameworks to LLM-generated reasoning. In all of this work the argumentation graph is constructed per-query and discarded after; persistence as a substrate is novel.
+
+**Skill libraries from agent traces.** Voyager (Wang et al., 2023) demonstrated that an embodied agent can accumulate a persistent skill library from its execution traces and reuse it across episodes. This is the closest prior work on procedural knowledge accumulation from agent activity. Voyager is a single-agent system without debate structure or federated contribution; it does not support adversarial revision of past skills.
+
+**AI safety via debate.** The intellectual ancestor of using debate for alignment is the Irving-Christiano-Amodei thread (2018) and Anthropic's recent prover-estimator work (2025). These treat debate as an inference-time mechanism for surfacing truth from competing AI systems, with each debate resolved per-query and gradient-trained on outcomes. The substrate keeps the debate structure but makes it persistent and removes gradient training.
+
+**Constitutional AI.** Bai et al. (2022) externalized alignment through textual constitutions consulted at inference time. C3AI (2025) explored using graph analysis to select principles for a still-text constitution. The substrate's contribution is to make the constitution executable as a graph rather than a static text — principles, sub-claims, and operational policies live in the same structure that worker activity feeds into and full nodes argue over.
+
+**Decentralized AI networks.** Several production systems run AI as a decentralized service: Bittensor (validator-staked weight aggregation over miners; Yuma consensus), Ritual / Infernet (decentralized inference oracle), Hyperspace (P2P libp2p inference with CRDT gossip), Gensyn (verifying gradient-based training via Truebit-style games), Numerai (staked ensemble of independent models). None has a shared persistent reasoning structure. Each is a marketplace for AI services, a verification system for centralized training, or a staked ensemble — not a federated debate substrate. The substrate's federated content-addressed event-merge (no FedAvg over tensors, no central training loop) is structurally distinct from all of these.
+
+**Tokenized claims.** Token Curated Registries (Goldin, 2018) established the game-theoretic basis for staking on assertions, where stakers lose their stake if the registry rejects their proposed claim. The substrate's mint mechanism is a generalization: full nodes stake on intermediate argument nodes in a debate graph, and the survival or refutation of those nodes determines mint. The DeScAI conceptual framework (Frontiers, 2025) sketches an adversarial-staked decentralized AI ledger; it does not specify the dispute resolution mechanics or argumentation semantics that the substrate provides.
+
+**The combination.** Each property of the substrate (persistent debate graph, agent-staked claims with economic survival, federated content-addressed merge, LLM reduced to an I/O codec, tokenized mint tied to argument-node survival) has antecedents. The integration — argumentation framework as durable substrate, with tokenized survival as the learning signal, federated across content-addressed nodes, and operating without backpropagation — has not been built before this work.
+
+---
+
 ## References and Resources
 
 **Autonet:** [autonet.computer](https://autonet.computer)
