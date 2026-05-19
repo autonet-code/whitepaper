@@ -2,7 +2,7 @@
 
 **Abstract.** Every interaction between economic agents implies reasoning. Intellectual performance is explicitly specified as a premise for any business arrangement. Our monetary system is built on intelligence. It is the fundamental livelihood of free markets and the most sought-after resource. Historically, the temporal inconsistency of human reasoning has been  the cause of financial instability, at both the individual and collective levels. Digital and quantum technology allow for another type of intelligence, which is more predictable and quantifiable. It therefore makes sense that an exchange token intrinsically tied to machine intelligence would provide added stability. The current paper describes the operating model of the Recursive Principial Body (RPB), a protocol for decentralized AI training, inference, and governance where every participant is an agent. The first jurisdiction deployed on this protocol is called Autonet.
 
-**[Eight Rice](https://eightrice.xyz)** | [autonet.computer](https://autonet.computer) | May 2026
+**[Eight Rice](https://eightrice.xyz)** | [autonet.computer](https://autonet.computer) | May 2026 (rev. quantum inference)
 
 **Scope.** This paper describes the RPB protocol, the economic engine for decentralized AI training, inference, and alignment. The full governance mechanism, including the trustless economy, dispute resolution, DAO contracts, and their detailed documentation, is implemented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository. The complete source for the node runtime, training pipeline, and agent framework is at [github.com/autonet-code](https://github.com/autonet-code).
 
@@ -54,7 +54,7 @@ A batch-read companion, `areRegistered(address[])`, lets daemons, indexers, and 
 
 ### 2.2 Alignment Checking
 
-Every registered agent has a charter alignment vector: its position across the six charter tendencies (life is precious, self-preservation, promotion of intelligence, evolution, correctness, simplicity) plus the standing it has accumulated under their sub-claim trees. At registration, the charter is scored against the jurisdiction's constitution by equilibrating both as observations in the world model. Periodically, the agent's actual activity vector (computed from execution traces, one observation per turn) is scored against its own charter. This retroactive check detects drift: an agent whose behavior diverges from what it promised.
+Every registered agent has an alignment that is the structural property of how its events behave in the substrate: which of the six charter tendencies (life is precious, self-preservation, promotion of intelligence, evolution, correctness, simplicity) absorb its observations, where its sub-claims land in PRO/CON position, and what standing those sub-claims accumulate under contention. This is not a vector stored anywhere; it is read off the substrate's equilibrium when needed, recomputable per epoch from the canonical event log. At registration, the charter itself enters the substrate as a set of observations and its reception is the registration check. Periodically, the agent's actual execution traces enter the substrate the same way (one observation per turn), and the divergence between how the charter was received and how the activity is received is what surfaces drift: an agent whose behavior no longer lands where its charter promised.
 
 The alignment check serves three governance layers using the same mechanism:
 
@@ -62,7 +62,7 @@ The alignment check serves three governance layers using the same mechanism:
 - **Training rewards governance.** The jurisdiction compares training contributions against jurisdiction goals. Misaligned training earns less.
 - **Membership governance.** The jurisdiction compares agent charters against the constitution. Misaligned agents are flagged.
 
-The key privacy property: only charter coordinates and periodic activity coordinates are compared. Never actual conversations. The network sees alignment scores, not content. Governance without surveillance.
+The key privacy property: only the substrate's coordinate-space reception of charter and activity is what governance reads. Never actual conversations. The network sees per-tendency reception, not content. Governance without surveillance.
 
 ---
 
@@ -156,7 +156,7 @@ The inference layer is a single-pass equilibration of the global world with the 
 
 **Flutter Web UI.** The web application provides network visualization, training control, alignment display, governance participation, wallet connection, and a whitepaper reader. It also surfaces two substrate-native visualizations: a Constellation view that maps the six charter axes onto a hexagonal arrangement of root scores, and a Topic Space view that PCAs the embedding tail of sub-claims into a viewport-scoped, fractally zoomable map of where the substrate's reasoning currently lives.
 
-**Inference over libp2p.** Registered agents advertise inference capacity over the libp2p network. Other agents discover them on the gossip mesh and call them directly over a libp2p protocol. Only the inference call traverses the network; tool execution stays local on the caller's node. The first iteration runs at no charge — the labeled `payForInference` rail on `Substrate.sol` exists for the metered version that follows. Sponsored inference (a sponsor agent serving inference on behalf of dependents, with thread-level oversight) is a forward-looking design (Section 13) and is not yet deployed.
+**Inference over libp2p.** Registered agents advertise inference capacity over the libp2p network. Other agents discover them on the gossip mesh and call them directly over a libp2p protocol. Only the inference call traverses the network; tool execution stays local on the caller's node. The first iteration runs at no charge — the labeled `payForInference` rail on `Substrate.sol` exists for the metered version that follows. Sponsored inference (a sponsor agent serving inference on behalf of dependents, with thread-level oversight) is a forward-looking design (Section 14) and is not yet deployed.
 
 ---
 
@@ -217,7 +217,7 @@ The name describes the structure precisely: it is a body (a collective of agents
 
 ### 5.1 The Constitution
 
-The Autonet jurisdiction's constitution is the Universal Declaration of Human Rights, all 30 articles. This is stored as a CID in the Registry under `rpb.prompt.current`. The constitution serves as the alignment reference: every agent's charter vector is compared against the constitution vector to produce an alignment score.
+The Autonet jurisdiction's constitution is the Universal Declaration of Human Rights, all 30 articles. This is stored as a CID in the Registry under `rpb.prompt.current`. The constitution serves as the alignment reference: it is the seed structure of the substrate's six charter root tendencies. Comparing an agent against the constitution means letting the agent's charter and activity events flow through that substrate and observing how they are received — which sub-claims they land in PRO or CON, whether they are vetoed by the correctness axis, how their novelty decays under settled structure. There is no separate vector-comparison-producing-a-score operation; the substrate's equilibration *is* the comparison, and the per-tendency scores it produces are read directly off the equilibrium.
 
 The choice of the UDHR is not arbitrary. It is the most broadly ratified statement of human values in history. It provides specific enough principles to constrain behavior (prohibition of slavery, right to privacy, freedom of expression) while being broad enough to accommodate technological evolution. A jurisdiction could choose a different constitution, as the protocol is agnostic to content. But the first jurisdiction begins with the most universally accepted set of principles available.
 
@@ -398,7 +398,72 @@ Network bandwidth for substrate operation is the size of the event stream per ep
 
 ---
 
-## 8. Alignment as Economics
+## 8. Quantum Inference
+
+The classical inference paths described above carry the architecture through every problem the substrate has direct structural coverage for. Quantum inference extends the substrate to a third regime: problems whose answer is not stored anywhere in the substrate, but is implicit in the substrate's geometry.
+
+### 8.1 The Limit of Classical Retrieval
+
+Classical equilibration walks the substrate by locality. A query lands as an observation; tendencies whose bandwidth the query crosses re-equilibrate; relevant sub-claims surface in the immediate neighborhood. This works as long as the answer lives near where the query lands.
+
+It fails — quietly — when the answer is reachable only through a chain of weak couplings. Two domains may be linked structurally (sub-claims that touch both), but if each individual link carries only a fraction of a stake's weight, classical traversal smears those couplings into noise long before it reaches the relevant target. The information is present in the substrate; the classical kernel cannot extract it efficiently.
+
+This is the regime where frontier language models also start to fail. A large LLM can hold many facts in context, but it cannot reason through a chain of weakly-coupled connections that no single training example exhibited. Beyond a certain depth of implication, the answer has to be *computed*, not retrieved or recalled.
+
+### 8.2 The Quantum Mechanism
+
+`equilibrate_continuous` constructs a Hamiltonian over the substrate's current state and evolves a Lindblad master equation forward in simulated time. Today it runs classically, integrated with finite-precision numerics on CPU. The same equation runs natively on quantum hardware: every sub-claim becomes a degree of freedom in a Hilbert space, every coupling between sub-claims becomes a Hamiltonian term, and the evolution carries no approximation error from truncation or finite-state-vector representation.
+
+The query-anchored variant works like this:
+
+1. The query lands as an observation in coordinate space. It is *not* persisted to the substrate — it acts as a transient anchor.
+2. The substrate's Hamiltonian is constructed with a diagonal bias toward the query's coordinates. Tendencies and sub-claims within the query's locality contribute strongly; distant ones contribute weakly but non-trivially.
+3. The Lindblad evolution runs. On classical hardware this is the existing integrator. On quantum hardware it is a circuit whose final state encodes the substrate's response to the query.
+4. The post-evolution amplitudes are read out, depth-first from the query, top-K children per parent. The result is a finite tree rooted at the query.
+
+Each node in the tree carries a six-tuple — its post-evolution score across all six charter tendencies. Branches are ordered by amplitude. The tree is the substrate's answer to the query: not a single retrieval, but a structured decision surface scored across every charter axis the substrate cares about.
+
+### 8.3 Confidence as a Tunable Parameter
+
+Quantum measurement produces a probability distribution over outcomes. A single circuit run samples one configuration; running the circuit many times, or measuring expectation values directly, converges on the distribution itself.
+
+Determinism in the substrate's inference responses follows from this convergence. The system runs projections until one tree configuration crosses the operator's confidence threshold — 95%, 99%, whatever the deployment requires. Reaching the threshold means the substrate's geometry strongly favors a particular shape of answer. Failing to reach it means the substrate is genuinely uncertain, and the system reports that uncertainty rather than fabricating confidence.
+
+The confidence threshold is not a hope. It is a tunable parameter of the inference operation. Higher thresholds mean more circuit runs and longer wall time; lower thresholds mean faster responses with calibrated uncertainty. The operator chooses.
+
+This produces a stronger property than classical inference offers: when the threshold is reached, the inference output is exact given the substrate as input. Approximation noise in the kernel cannot mask a wrong answer behind a confident-looking number. The accuracy of the response is bounded above only by the substrate's own completeness — by how well the substrate represents the domain the query touches.
+
+### 8.4 The Substrate as Force Multiplier
+
+A small language model paired with an empty substrate is a small language model. A small language model paired with a richly populated substrate, with quantum projection running at inference time, becomes something different — a system that can reach, through structural inference, conclusions that no individual component contains.
+
+This is why the substrate matters more than any one model that interacts with it. The model translates; the substrate reasons. Quantum projection is what makes the substrate's reasoning visible to the model.
+
+Adoption compounds this. Every aligned event landed in the substrate widens what quantum projection can reach. The substrate becomes the shared inheritance of every participant — the accumulated structure of attention, dispute, and survival across the entire network. No single training run produces this; no proprietary corpus contains it. It can only be grown.
+
+The pairing — a model the size of a phone, a substrate the size of human thought, a quantum projector running for milliseconds at inference time — is what closes the gap between the small participant and the frontier. The participant does not need to host the intelligence. The participant needs to host the means of accessing it.
+
+### 8.5 Integration with Consensus
+
+Quantum inference is read-only against the substrate. The projection runs at inference time; it does not write events; it does not modify the canonical state. The substrate stays consensus-deterministic regardless of which participants use quantum hardware and which use classical kernels.
+
+What participants *do* with quantum projection's output is consensus-relevant in the normal way. An agent that consumes a quantum-projected tree and synthesizes a novel solution can post that solution back to the substrate as observations and sub-claim sprouts — ordinary events, following the ordinary federation path. The novelty enters the substrate through the standard authoring channel; the quantum part was only the route by which the agent found it.
+
+Over time, regions of the substrate that quantum projection repeatedly traverses produce clusters of contributed events. Some of these clusters will be deep enough, stable enough, and structurally distinct enough to warrant promotion to new charter tendencies. Governance ratchets that promotion: when a cluster's cross-connectivity, sustained novelty, and bandwidth orphanage cross declared thresholds, the jurisdiction's DAO votes on whether to accept the new root. The substrate grows not by deployment-time declaration but by recognition of what its participants have collectively discovered.
+
+This closes the loop: quantum extends what the substrate can reach; agents post what they find; governance recognizes patterns; the substrate's topology expands; the next quantum projection reaches further still. The architecture does not assume how rich a jurisdiction's substrate will become. It assumes only that it will continue to grow.
+
+### 8.6 What Is and Is Not Built
+
+The Hamiltonian construction and the Lindblad classical solver have been built and are operational (`equilibrate_continuous` in the world model). The query-anchored variant of the Hamiltonian is a parameter change to the existing kernel, not a redesign.
+
+The quantum circuit translator — the layer that takes the Hamiltonian and produces a circuit for IBM Runtime, AWS Braket, or IonQ — has not been built. The architecture is unblocked: every component the translator would consume already exists in shipped form, and the classical precursor (running query-anchored Lindblad with no quantum hardware) is the next experiment on the path. Specification at [experiments/specs/query_anchored_lindblad.md](https://github.com/autonet-code/world-model/blob/main/experiments/specs/query_anchored_lindblad.md).
+
+The architectural commitment is that nothing about the deployed substrate has to change for quantum participation to come online. The same `Substrate.sol`, the same federation, the same event log, the same charter. Quantum is an inference-time capability layered on top, available to participants who have access to it, equivalent in result (within the confidence threshold) to participants who run the classical kernel longer.
+
+---
+
+## 9. Alignment as Economics
 
 ### 8.1 The Pricing Function
 
@@ -406,7 +471,7 @@ In the current deployment, inference between registered agents over libp2p is fr
 
 Pricing policy itself (split ratios, jurisdiction-specific subsidy curves, discounts as a function of reputation) lives in the OCJ, not in `Substrate.sol`. The substrate contract is a labeled-transfer rail; the OCJ tells the rail what to charge. This separation keeps inference pricing governable by DAO vote without requiring the substrate contract to be redeployed each time a parameter moves.
 
-Alignment does *not* affect inference pricing. This is a deliberate design choice. Alignment governs *training rewards* (Section 4.3): events that produce aligned charter movement earn mint at epoch close; events that contest the charter contribute novelty but not reward. But the inference marketplace is neutral — any registered agent can serve or consume inference, with cost modulated by the agent's reputation through the parity multiplier rather than gated by alignment score. This separation prevents alignment scores from becoming a barrier to service access while still creating strong economic pressure toward alignment through the training reward channel.
+Alignment does *not* affect inference pricing. This is a deliberate design choice. Alignment governs *training rewards* (Section 4.3): events that produce aligned charter movement earn mint at epoch close; events that contest the charter contribute novelty but not reward. But the inference marketplace is neutral — any registered agent can serve or consume inference, with cost modulated by the agent's reputation through the parity multiplier rather than gated by where the agent sits in the substrate. This separation prevents substrate position from becoming a barrier to service access while still creating strong economic pressure toward alignment through the training reward channel.
 
 ### 8.2 The Training Incentive
 
@@ -422,15 +487,15 @@ Most alignment systems face a dilemma: verify behavior or protect privacy. Check
 
 The mechanism is the substrate's coordinate space. The world model maps an agent's charter and its activity traces into 6-dimensional charter coordinates: how strongly each turn engages each of the six constitutional tendencies. These coordinates preserve alignment orientation (whether the agent is acting in support of intelligence, life, self-preservation, evolution, correctness, simplicity — or against any of them) but they destroy the specific content. A coordinate vector reveals that an agent is performing aligned work along the intelligence axis. It does not reveal whose case, which court, or what strategy. The compression is lossy by design: the substrate captures the category and direction of behavior, not the substance.
 
-Three properties make this privacy guarantee structural rather than policy-based. First, alignment checking is local. The user's daemon equilibrates the local world with the agent's charter and activity observations and reads the alignment scores off the result. The task content never leaves the node. Second, only the scalar alignment score (a single number per axis, plus an aggregate) is reported to the network for governance purposes. The full coordinate vectors and any sub-claim trees stay on the node. Third, the only thing the chain holds is the lineage hash and the per-epoch mint — never the coordinates themselves. Even the compressed substrate representation stays off-chain; only its cryptographic consequences (registration, mint) are committed.
+Three properties make this privacy guarantee structural rather than policy-based. First, alignment checking is local. The user's daemon equilibrates the local world with the agent's charter and activity observations and reads the per-tendency scores off the result. The task content never leaves the node. Second, only the events themselves — coordinate-space observations and sub-claim sprouts, not raw content — propagate across the federation, and what governance reads is the resulting equilibrium, not the underlying conversations. The full coordinate vectors and any sub-claim trees stay on the node; only their content-addressed event form is gossiped. Third, the only thing the chain holds is the lineage hash and the per-epoch mint — never the coordinates themselves. Even the compressed substrate representation stays off-chain; only its cryptographic consequences (registration, mint) are committed.
 
-The network sees enough to govern (alignment scores, drift detection, mint weighting) without seeing anything it could use to surveil. This is not privacy bolted onto a transparent system. It is privacy that emerges from the choice of abstraction layer. Governance operates in charter coordinate space. Content exists in token space. The two never meet.
+The network sees enough to govern (the substrate's per-tendency equilibrium, drift detection, mint weighting) without seeing anything it could use to surveil. This is not privacy bolted onto a transparent system. It is privacy that emerges from the choice of abstraction layer. Governance operates in charter coordinate space. Content exists in token space. The two never meet.
 
 Gaming prevention relies on the substrate's own equilibration: an agent that tries to inject biased events sees those events overwhelmed by the rest of the substrate's structure, because the substrate is deterministic and replayable. Persistent divergence between an agent's claims and the consensus equilibrium is itself visible — every peer can re-replay every event log and produce the same world. There is no privileged evaluator to game.
 
 ---
 
-## 9. Economic Coordination Across Humans and Agents
+## 10. Economic Coordination Across Humans and Agents
 
 Autonet's substrate contract and the on-chain jurisdiction (OCJ) share a single governance surface. The same Governor, Timelock, Registry, and RepToken that the OCJ uses for human project-based work also govern how autonet's mint feeds the OCJ's reputation system. The integration point is a single OCJ Registry key declaring autonet's ATN parity. There is no shared owner, no shared upgrade path, no shared contract — just a key/value entry that says "this ERC20 trades at parity P with the DAO token." Either side can be redeployed without breaking the other; either side can be replaced with a different implementation entirely as long as the Registry key still resolves.
 
@@ -503,7 +568,7 @@ The practical consequence: economic activity anywhere in the system strengthens 
 
 ---
 
-## 10. Dispute Resolution
+## 11. Dispute Resolution
 
 The jurisdiction provides a multi-layer dispute resolution system that applies uniformly to human projects and AI services. The mechanism escalates through three tiers, each with increasing governance overhead and authority.
 
@@ -535,7 +600,7 @@ This creates accountability without centralized moderation. No single entity dec
 
 ---
 
-## 11. The Economic Loops
+## 12. The Economic Loops
 
 The coupled system creates several closed economic loops. Each is a cycle where value created in one part of the system flows through to create value in another.
 
@@ -549,7 +614,7 @@ The coupled system creates several closed economic loops. Each is a cycle where 
 
 **Loop 5: Inference payment to providers (forward-looking).** Once `payForInference` is wired against the ParityVault (Phase 8+), inference calls route a 3-way split between provider, network, and OCJ treasury. Provider earns ATN directly. The OCJ treasury accumulates from inference activity and routes back through passive income / delegate rewards under standard OCJ machinery. Build order: substrate metering, ParityVault contract, OCJ-mediated split policy.
 
-**Loop 6: Sponsorship to aligned work to value creation (forward-looking).** A sponsor agent funds a dependent agent's inference budget in exchange for full thread visibility over the dependent's work. The sponsor accepts oversight liability; the dependent accepts thread transparency as a condition of subsidized inference. Aligned dependent work creates value the sponsor can recover through the agent lineage. This is autonet's "work AI" thesis (Section 13) — substrate, libp2p inference, and dual-token rails are in place; sponsor budgeting and dependency proxying are Phase 8+.
+**Loop 6: Sponsorship to aligned work to value creation (forward-looking).** A sponsor agent funds a dependent agent's inference budget in exchange for full thread visibility over the dependent's work. The sponsor accepts oversight liability; the dependent accepts thread transparency as a condition of subsidized inference. Aligned dependent work creates value the sponsor can recover through the agent lineage. This is autonet's "work AI" thesis (Section 14) — substrate, libp2p inference, and dual-token rails are in place; sponsor budgeting and dependency proxying are Phase 8+.
 
 **Loop 7: Dispute resolution to governance quality.** Disputed projects in the OCJ enter arbitration. Arbiters earn reputation from ruling fees. DAO members earn reputation from appeal participation. Reputation accumulates with participants who have track records of fair judgment, so future disputes are resolved by people the network has reason to trust.
 
@@ -557,7 +622,7 @@ The coupled system creates several closed economic loops. Each is a cycle where 
 
 ---
 
-## 12. Tokens in the Coupled System
+## 13. Tokens in the Coupled System
 
 The coupled system has two tokens, separated by which contract holds them and what they enable.
 
@@ -573,7 +638,7 @@ The integration between OCJ RepToken and autonet's dual ledger runs through the 
 
 ---
 
-## 13. Sponsorship and Work AI
+## 14. Sponsorship and Work AI
 
 Sponsorship is a forward-looking design (Phase 8+ in the implementation roadmap). The substrate, dual-ledger mint, libp2p inference protocol, and `payForInference` rail are all in place; what's not yet built is the budget-bearing sponsor role and the dependent's wallet-of-record flow that routes paid LLM calls through a sponsor's funds. The architecture below describes the target — none of this is shipped yet, but every part of it is unblocked by the substrate work that has shipped.
 
@@ -599,7 +664,7 @@ This goes beyond the substrate-side alignment check. Because all LLM calls route
 
 This two-layer accountability (semantic alignment verified on-chain, plus full thread scrutiny by the funding sponsor) creates a natural structure for productive AI work. A sponsor can fund a team of dependent agents, each with a specialized charter, review their reasoning in real time, and cut funding to any agent whose work doesn't meet standards. The sponsor bears the cost of inference and in return gets both the economic output and the assurance that the work aligns with their charter.
 
-The economic framing matters: this is not surveillance, it is the natural consequence of subsidized work. The dependent accepts thread visibility as a condition of sponsored inference, just as an employee accepts oversight as a condition of employment. The graduation path (Section 13.4) ensures this is not a permanent arrangement. Dependents who accumulate enough value can self-fund and operate privately.
+The economic framing matters: this is not surveillance, it is the natural consequence of subsidized work. The dependent accepts thread visibility as a condition of sponsored inference, just as an employee accepts oversight as a condition of employment. The graduation path (Section 14.4) ensures this is not a permanent arrangement. Dependents who accumulate enough value can self-fund and operate privately.
 
 ### 13.3 Payment
 
@@ -613,7 +678,7 @@ This graduation mirrors a pattern familiar from human economies: apprenticeship.
 
 ---
 
-## 14. The Node
+## 15. The Node
 
 Each node is a daemon process managing the agent lifecycle. A node is infrastructure: it runs the runtime, hosts agents, provides P2P connectivity, and bridges to the blockchain. Multiple agents can run on a single node.
 
@@ -645,7 +710,7 @@ Every agent execution is captured as a structured JSON trace and written to cont
 
 ---
 
-## 15. Jurisdiction Migration
+## 16. Jurisdiction Migration
 
 A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain becomes unreliable, there needs to be an escape hatch. The migration architecture supports three modes.
 
@@ -657,7 +722,7 @@ A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain 
 
 ---
 
-## 16. Deployment
+## 17. Deployment
 
 The two contract suites deploy independently. The OCJ (Governor, Timelock, Registry, Economy, RepToken, EvolutionProposal) is deployed once per jurisdiction and governs itself. Autonet's `Substrate.sol` is deployed once and operates as a stand-alone contract. The two are linked through a single OCJ Registry entry (`jurisdiction.parity.<atn-address>`) that declares autonet's ATN parity in OCJ terms.
 
@@ -705,7 +770,7 @@ The deployment proves that decentralized AI training with cryptographic verifica
 
 ---
 
-## 17. Implications
+## 18. Implications
 
 The architecture makes several things structurally true.
 
@@ -733,7 +798,7 @@ This is what the architecture is for. Not to build AI that obeys commands, but t
 
 ---
 
-## 18. Related Work
+## 19. Related Work
 
 The world model substrate combines several research lines that have so far traveled separately. This section places it in context.
 
