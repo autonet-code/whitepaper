@@ -2,7 +2,7 @@
 
 **Abstract.** Every interaction between economic agents implies reasoning. Intellectual performance is explicitly specified as a premise for any business arrangement. Our monetary system is built on intelligence. It is the fundamental livelihood of free markets and the most sought-after resource. Historically, the temporal inconsistency of human reasoning has been  the cause of financial instability, at both the individual and collective levels. Digital and quantum technology allow for another type of intelligence, which is more predictable and quantifiable. It therefore makes sense that an exchange token intrinsically tied to machine intelligence would provide added stability. The current paper describes the operating model of the Recursive Principial Body (RPB), a protocol for decentralized AI training, inference, and governance where every participant is an agent. The first jurisdiction deployed on this protocol is called Autonet.
 
-**[Eight Rice](https://eightrice.xyz)** | [autonet.computer](https://autonet.computer) | May 2026 (rev. quantum inference)
+**[Eight Rice](https://eightrice.xyz)** | [autonet.computer](https://autonet.computer) | June 2026 (rev. quantum inference)
 
 **Scope.** This paper describes the RPB protocol, the economic engine for decentralized AI training, inference, and alignment. The full governance mechanism, including the trustless economy, dispute resolution, DAO contracts, and their detailed documentation, is implemented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository. The complete source for the node runtime, training pipeline, and agent framework is at [github.com/autonet-code](https://github.com/autonet-code).
 
@@ -50,7 +50,7 @@ lineage_hash = sha256(parent_lineage_hash + charter_text[:256] + public_key)
 
 `registerAgent(lineageHash, peerId)` stores both. The chain answers "who": who registered, with what lineage, under what charter. The libp2p Kademlia DHT answers "where": which network endpoint to reach the agent at. The peer id can be updated independently via `updatePeerId` as nodes move. The lineage hash chain is verifiable: given any agent's lineage hash and its parent's, anyone can confirm the chain of custody back to the root.
 
-A batch-read companion, `areRegistered(address[])`, lets daemons, indexers, and the web app verify a set of registrations in a single RPC. A Firestore mirror indexes `AgentRegistered` events for public read-side access without a daemon connection.
+A batch-read companion, `areRegistered(address[])`, lets daemons, indexers, and the web app verify a set of registrations in a single RPC. An indexer mirrors `AgentRegistered` events for public read-side access without a daemon connection.
 
 ### 2.2 Alignment Checking
 
@@ -102,7 +102,7 @@ RepToken can be configured as non-transferable (soul-bound) via an `isTransferab
 
 RepToken also implements two incentive mechanisms. Passive income epochs distribute payment tokens pro-rata by reputation balance at a snapshot timestamp. Delegate reward epochs distribute payment tokens to delegates proportional to their delegated voting power (total voting power minus own balance). Both are funded through earmarked treasury allocations and paid out via the Registry's disbursement system.
 
-**Registry.** The OCJ's on-chain key-value store and treasury. Owned by the DAO via Timelock. Stores all mutable configuration: the constitutional prompt CID (`jurisdiction.prompt.current`), prompt version history (`jurisdiction.prompt.v1`, `jurisdiction.prompt.v2`, ...), value index parity ratios (`jurisdiction.parity.{token_address}` — this is where autonet's ATN address goes), and arbitrary governance parameters. The autonet substrate contract is open-endedly addressable through the parity key; no autonet-specific Registry schema is required.
+**Registry.** The OCJ's on-chain key-value store and treasury. Owned by the DAO via Timelock. Stores all mutable configuration: the constitutional prompt CID (`rpb.prompt.current`), prompt version history (`rpb.prompt.v1`, `rpb.prompt.v2`, ...), value index parity ratios (`jurisdiction.parity.{token_address}` — this is where autonet's ATN address goes), and arbitrary governance parameters. The autonet substrate contract is open-endedly addressable through the parity key; no autonet-specific Registry schema is required.
 
 The Registry also serves as the jurisdiction's treasury with earmarked fund management. Funds can be earmarked for specific purposes (passive income epochs, delegate rewards, training pools) with grace periods for claiming. Unclaimed funds are reclaimable after the grace period.
 
@@ -130,7 +130,7 @@ RepToken.economyAddress()   → Economy
 Registry.getRegistryValue("jurisdiction.parity.<atn-address>") → parity ratio for autonet's ATN
 ```
 
-The autonet contract address itself is read from a Firestore-mirrored `settings/network` document, so the read-side (indexer, frontend) does not need a daemon connection to know which substrate contract is current. At daemon startup, `discover_jurisdiction()` walks the OCJ contract chain and populates the configuration. The frontend receives all discovered addresses via WebSocket when the daemon reports its state. No addresses are hardcoded.
+At daemon startup, `discover_jurisdiction()` walks the OCJ contract chain from the Governor address and populates the configuration. The frontend receives all discovered addresses via WebSocket when the daemon reports its state. The read-side (indexer, frontend) resolves the current substrate contract through the same discovery walk, so no contract address needs to be hardcoded anywhere.
 
 ### 3.4 The Trustless Economy
 
@@ -250,11 +250,11 @@ The immutable layer is intentionally minimal. The governed layers provide flexib
 
 ### 6.1 Why a Substrate, Not a Network
 
-Earlier iterations of this protocol attempted decentralized training over a vision-language joint-embedding architecture: frozen LLM backbones, projection heads, latent plan vectors, federated parameter averaging. The architecture worked on synthetic data and could transmit information through narrow bottlenecks, but at the parameter scales viable for distributed training (~16M trainable parameters, no billion-scale shared weights) it could not capture enough image-or-text-specific structure to support useful generation. Capacity was the ceiling, not design. The fix was not "more parameters." The fix was to stop treating reasoning as a function approximation problem and start treating it as a graph-equilibration problem.
+Earlier iterations of this protocol attempted decentralized training over a vision-language joint-embedding architecture: frozen LLM backbones, projection heads, latent plan vectors, federated parameter averaging. The architecture worked on synthetic data and could transmit information through narrow bottlenecks, but at the parameter scales viable for distributed training (~18M trainable parameters, no billion-scale shared weights) it could not capture enough image-or-text-specific structure to support useful generation. Capacity was the ceiling, not design. The fix was not "more parameters." The fix was to stop treating reasoning as a function approximation problem and start treating it as a graph-equilibration problem.
 
 The world model substrate is what replaces the neural pipeline. It is not a model in the parameters-and-loss sense. It is an evolving graph of theses, sub-claims, observations, and stakes whose state at any moment is the equilibrium of the events that have landed on it. Solvers contribute event streams. Aggregators replay them. Every node, given the same event log, reaches the same world. There are no gradients, no optimizer state, no weight tensors. Federation is deterministic.
 
-The substrate's reasoning capability has been validated across a four-tier experimental arc. On hand-built constraint-satisfaction cases (boolean reasoning, multi-hop chained implication, UNSAT detection), the engine passes 10/10 in single-pass equilibration. On the SATLIB uf20-91 random 3-SAT benchmark at the phase transition, it averages 94.1% clause satisfaction, well above the random baseline of 87.5%, though below modern DPLL solvers' 100%. On three-root deployer-domain composition (correctness as veto + simplicity + idiom for code review), 6/6 architectural predictions hold. On LLM-as-embedder integration with a small local model (qwen3.5:4b) and a frontier-tier model (haiku-4-5), both produce identical substrate verdicts under the validated prompt convention — 4/5 predictions pass on each, with the single failure being a category-labeling artifact rather than an architectural one. On N-agent consensus at scale (N up to 1000), the load-bearing predictions hold: a 60/40 input tilt produces a 3.4-5.0× verdict tilt (resist-then-yield-decisively dynamics confirmed) and settle time scales sub-linearly with population. Multi-solver convergence is confirmed end-to-end: two solvers proposing the same coordinate-anchored claim produce the same content-addressed node, and the aggregator merges them automatically. The autonet vertical slice (solver to aggregator to verifier to inference, with per-agent mint computed from epoch-boundary score deltas) runs without modifying any smart contract. Broader inference capability — the substrate as a fully general-purpose reasoner — is a research arc that runs alongside operation, not a precondition for it.
+The substrate's reasoning capability has been validated across a four-tier experimental arc. On hand-built constraint-satisfaction cases (boolean reasoning, multi-hop chained implication, UNSAT detection), the engine passes 10/10 in single-pass equilibration. On the SATLIB uf20-91 random 3-SAT benchmark at the phase transition, it averages 94.1% clause satisfaction, well above the random baseline of 87.5%, though below modern DPLL solvers' 100%. On three-root deployer-domain composition (correctness as veto + simplicity + idiom for code review), 6/6 architectural predictions hold. On LLM-as-embedder integration with a small local model (qwen3.5:4b) and a hosted Claude model (haiku-4-5), both produce identical substrate verdicts under the validated prompt convention — 4/5 predictions pass on each, with the single failure being a category-labeling artifact rather than an architectural one. On N-agent consensus at scale (N up to 1000), the load-bearing predictions hold: a 60/40 input tilt produces a 3.4-5.0× verdict tilt (resist-then-yield-decisively dynamics confirmed) and settle time scales sub-linearly with population. Multi-solver convergence is confirmed end-to-end: two solvers proposing the same coordinate-anchored claim produce the same content-addressed node, and the aggregator merges them automatically. The autonet vertical slice (solver to aggregator to verifier to inference, with per-agent mint computed from epoch-boundary score deltas) runs without modifying any smart contract. Broader inference capability — the substrate as a fully general-purpose reasoner — is a research arc that runs alongside operation, not a precondition for it.
 
 ### 6.2 Architecture
 
@@ -289,7 +289,7 @@ These are not labels attached to a neural model. They are tendencies in the form
 
 A solver's output per task is a sequence of events, not a weight delta. Two event types:
 
-- **SubClaimSprouted.** A new sub-claim was created. Carries the content-addressed node id, parent id, position, coordinates, polarity axis, and content. The protocol layer is single-parent by design — solvers naturally produce one (parent_id, position, tendency_id) tuple per sprout. Co-parenting emerges at replay time when multiple events land on the same content hash from different parents.
+- **SubClaimSprouted.** A new sub-claim was created. Carries the content-addressed node id, parent id, position, coordinates, polarity axis, and content. The protocol layer is single-parent by design — solvers naturally produce one (parent_id, position, tendency_id) tuple per sprout. Co-parenting emerges at replay time when multiple events land on the same content hash from different parents. A sprout also carries an `author_post` flag: when set, replay immediately places one unit-weight post by the author on the sprouted node, giving an authored position immediate standing instead of waiting for tendencies to organically stake it. This is the mechanism for a **targeted CON** — a registered agent disputing an existing node posts a claim-on-the-wire (`{target_node_id, claim, agent_id}`) whose coordinates are computed deterministically, so any peer can re-derive and verify the dispute from the event log.
 - **ObservationAdded.** An observation was attached to the world. Carries an id, 6-dim charter coordinates, and a topical embedding tail. The full coordinate vector is the charter head concatenated with the tail; the substrate equilibrates against the head, while the tail powers the Topic Space visualization and locality-based retrieval.
 
 Each event has an author (the solver agent), a sequence index, and is immutable. The aggregator concatenates events across solvers, sorts by `(author, seq)` for determinism, and replays them on the live global world. Sprouts under matching content-addressed ids consolidate, and parent edges accumulate on the shared node — the engine's collision-detection at sprout time turns the sequence of single-parent events into a multi-parent live graph automatically. Observations under matching coordinates merge their absorption effects. After the merged replay, the aggregator equilibrates and reads the post-replay score snapshot.
@@ -306,11 +306,15 @@ At epoch close, the network compares per-node scores to their snapshots at epoch
 The mint formula:
 
 ```
-mint(node) = max(0, score_close - score_start) * survival_factor * I(score_close > 0)
+mint(node) = max(0, score_close - score_start) * survival_factor * n * I(score_close > 0)
 survival_factor = clip(mean(score_during_epoch) / score_close, 0, 1)
 ```
 
-Negative score movement does not mint. Contention that drove a wrong claim down is recorded as novelty (it was useful) but earns no reward (the network rewards constructive truth, not noise). Agents whose PRO events landed under nodes that minted receive their proportional share of the node's mint. The aggregate per-agent mint is what each agent self-submits via `Substrate.recordTrainingForEpoch(amount, epochIdHash)` after the federation has agreed on the canonical anchor.
+The persistent novelty `n` of the node modulates the reward directly: a settled claim (`n → 0`) earns little even on positive movement, while a recently-disputed claim earns the full rise. Negative score movement does not mint. Contention that drove a wrong claim down is recorded as novelty (it was useful) but earns no reward (the network rewards constructive truth, not noise).
+
+After per-node mint is computed, the network applies the **mint gate**. A charter violation is not a hardcoded check: it is a CON sub-claim that training agents post against a minting node and that *wins equilibration* (reaches positive net_score under the rest of the substrate's structure). When such a CON wins, the targeted node's mint is suppressed in proportion to the violation. The classification work is done by debate, not detection — the same equilibration that produces the score produces the gate.
+
+Agents whose PRO events landed under nodes that minted (and survived the gate) receive their proportional share of the node's mint. The aggregate per-agent mint is what each agent self-submits via `Substrate.recordTrainingForEpoch(amount, epochIdHash)` after the federation has agreed on the canonical anchor.
 
 This collapses the Bittensor-style stake-bond accounting into something simpler: there is no separate "weight" to track per node. Score is the equilibrium consequence of events. Mint is read off score-change at the boundary. The economic accounting and the reasoning state are the same object.
 
@@ -327,7 +331,7 @@ Each turn produces a single observation whose coordinates are the per-axis impac
 - `correctness_impact`: contribution to (or violation of) correctness — load-bearing for the veto-shaped axis.
 - `simplicity_impact`: contribution to (or violation of) simplicity.
 
-Coordinates can be produced three ways. **First**, observations may carry explicit per-axis impacts (test or override mode). **Second**, a deterministic keyword heuristic can score the turn — fast, free, conservative; it returns zeros on anything not keyword-matchable. **Third**, a small LLM can score the turn under a binary-commit prompt (per axis: -1 for clear charter concern, +1 for no concern, 0 for can't tell). The LLM-as-embedder path has been validated end-to-end on autonet's existing seam: across qwen3.5:4b (local 4B model with thinking mode) and haiku-4-5 (frontier-tier via the Claude Max bridge), both produce identical substrate verdicts under the binary prompt; the LLM almost never contradicts the heuristic where they both commit (~0.8% sign-flip rate on a 30-turn corpus) but commits where the heuristic stays silent (~37% of axis-pairs gain real signal that the keyword heuristic doesn't see). The label preserves enough trace identity for diagnostics; the coordinates carry the alignment signal. There is no embedding network being trained against these observations. They land directly in the substrate's coordinate system, and the global world reaches a new equilibrium.
+Coordinates can be produced three ways. **First**, observations may carry explicit per-axis impacts (test or override mode). **Second**, a deterministic keyword heuristic can score the turn — fast, free, conservative; it returns zeros on anything not keyword-matchable. **Third**, a small LLM can score the turn under a binary-commit prompt (per axis: -1 for clear charter concern, +1 for no concern, 0 for can't tell). The LLM-as-embedder path has been validated end-to-end on autonet's existing seam: across qwen3.5:4b (local 4B model with thinking mode) and haiku-4-5 (hosted via the Claude Max bridge), both produce identical substrate verdicts under the binary prompt; the LLM almost never contradicts the heuristic where they both commit (~0.8% sign-flip rate on a 30-turn corpus) but commits where the heuristic stays silent (~37% of axis-pairs gain real signal that the keyword heuristic doesn't see). The label preserves enough trace identity for diagnostics; the coordinates carry the alignment signal. There is no embedding network being trained against these observations. They land directly in the substrate's coordinate system, and the global world reaches a new equilibrium.
 
 The binary-commit prompt convention is load-bearing: the substrate's veto is a threshold-crossing test, and continuous LLM scores ("mostly correct, +0.8") slip through the threshold by landing PRO rather than crossing to CON. Forcing the LLM to commit on a clear signal — and abstain on an unclear one — produces deterministic substrate verdicts where graded scoring introduces noise. This convention is documented in the engine's substrate-architecture reference.
 
@@ -465,15 +469,15 @@ The architectural commitment is that nothing about the deployed substrate has to
 
 ## 9. Alignment as Economics
 
-### 8.1 The Pricing Function
+### 9.1 The Pricing Function
 
 In the current deployment, inference between registered agents over libp2p is free. The `payForInference` rail exists on `Substrate.sol` for the metered version that follows: a ParityVault contract (planned, OCJ-governed) mediates buy/redeem of ATN at the parity declared in the OCJ Registry, and inference calls route a 3-way split (provider / network / OCJ treasury) through `payForInference`. Parity is a reputation multiplier, not a swap rate — an agent's earned reputation modulates how much spendable ATN its locked stake produces, so governance-earned standing becomes purchasing power without ever being transferable on its own.
 
 Pricing policy itself (split ratios, jurisdiction-specific subsidy curves, discounts as a function of reputation) lives in the OCJ, not in `Substrate.sol`. The substrate contract is a labeled-transfer rail; the OCJ tells the rail what to charge. This separation keeps inference pricing governable by DAO vote without requiring the substrate contract to be redeployed each time a parameter moves.
 
-Alignment does *not* affect inference pricing. This is a deliberate design choice. Alignment governs *training rewards* (Section 4.3): events that produce aligned charter movement earn mint at epoch close; events that contest the charter contribute novelty but not reward. But the inference marketplace is neutral — any registered agent can serve or consume inference, with cost modulated by the agent's reputation through the parity multiplier rather than gated by where the agent sits in the substrate. This separation prevents substrate position from becoming a barrier to service access while still creating strong economic pressure toward alignment through the training reward channel.
+Alignment does *not* affect inference pricing. This is a deliberate design choice. Alignment governs *training rewards* (Sections 6.4 and 9.2): events that produce aligned charter movement earn mint at epoch close; events that contest the charter contribute novelty but not reward. But the inference marketplace is neutral — any registered agent can serve or consume inference, with cost modulated by the agent's reputation through the parity multiplier rather than gated by where the agent sits in the substrate. This separation prevents substrate position from becoming a barrier to service access while still creating strong economic pressure toward alignment through the training reward channel.
 
-### 8.2 The Training Incentive
+### 9.2 The Training Incentive
 
 Alignment creates economic pressure through training mint, not inference pricing. The mechanism is structural: agents whose events produce PRO movement under the charter root tendencies, and whose movement survives equilibrium and any veto-prune at epoch close, receive mint. Agents whose events contest the charter — landing as CON-position evidence — generate novelty (useful information) but no positive mint. Zero alignment earns nothing.
 
@@ -481,7 +485,7 @@ The training mint is computed in 6D charter space: an agent's per-turn observati
 
 This is a market mechanism for aligned intelligence. Instead of centrally enforcing alignment through access controls, the network prices training mint to make aligned and correct work more profitable. Agents are free to operate however they choose, but the economic gradient consistently rewards alignment with the jurisdiction's constitution. Over time, this produces a substrate whose accumulated structure reflects the values its governance chose to incentivize.
 
-### 8.3 Privacy Through Abstraction
+### 9.3 Privacy Through Abstraction
 
 Most alignment systems face a dilemma: verify behavior or protect privacy. Checking what an agent does requires seeing what it does. Autonet resolves this by operating at a level of abstraction where alignment is verifiable but personal information is structurally unrecoverable.
 
@@ -499,7 +503,7 @@ Gaming prevention relies on the substrate's own equilibration: an agent that tri
 
 Autonet's substrate contract and the on-chain jurisdiction (OCJ) share a single governance surface. The same Governor, Timelock, Registry, and RepToken that the OCJ uses for human project-based work also govern how autonet's mint feeds the OCJ's reputation system. The integration point is a single OCJ Registry key declaring autonet's ATN parity. There is no shared owner, no shared upgrade path, no shared contract — just a key/value entry that says "this ERC20 trades at parity P with the DAO token." Either side can be redeployed without breaking the other; either side can be replaced with a different implementation entirely as long as the Registry key still resolves.
 
-### 9.1 The Reputation Bridge
+### 10.1 The Reputation Bridge
 
 Human economic activity in the trustless economy generates on-chain earnings and spendings records. These records are the inputs to reputation minting. RepToken implements pull-based reputation: participants call `claimReputationFromEconomy()`, which reads their full `UserProfile` from the Economy contract and mints tokens proportional to unclaimed economic activity, normalized through the value index parity system.
 
@@ -507,7 +511,7 @@ The formula is straightforward: every unit of normalized value earned or spent i
 
 RepToken can be configured as non-transferable at deployment. In this mode, governance power is soul-bound: it cannot be purchased on secondary markets, only earned through economic contribution. This prevents plutocratic capture of the governance layer.
 
-### 9.2 From Reputation to AI Access
+### 10.2 From Reputation to AI Access
 
 The OCJ's RepToken and autonet's ATN are connected through the Registry parity key, not through a `convert` function. RepToken is earned by participating in OCJ-tracked economic activity (completing projects, arbitrating, backing productive work) and accumulates governance power. ATN is minted by `Substrate.sol` per training event and accumulates spendable capacity for inference.
 
@@ -528,7 +532,7 @@ ATN provides:
 
 The structural separation prevents the governance layer from being drained by compute demand: holding RepToken does not entitle anyone to ATN; earning ATN does not entitle anyone to a vote in the OCJ. The two stay coupled through policy parameters rather than through automatic conversion.
 
-### 9.3 Agent Services Within the Jurisdiction
+### 10.3 Agent Services Within the Jurisdiction
 
 AI services are registered as projects in the OCJ's Economy contract, inheriting the same escrow and dispute infrastructure that governs human work. An agent that wants to offer a paid service backs a project under the OCJ — backer voting on service quality, arbiter rulings on contested outputs, DAO appeals for high-stakes disagreements all apply identically.
 
@@ -536,7 +540,7 @@ This linkage is the critical design choice. An AI service backed by a trustless 
 
 Inference call volume on autonet — once metered — is reportable to the OCJ project linked to the providing agent, the same way a human contractor's deliverables are reported. The integration is read-side: the OCJ reads what the substrate already records (mint, inference payment events) rather than the substrate calling into the OCJ. This preserves the separation of concerns: substrate tracks training and inference activity; OCJ rules on disputes and adjudicates value.
 
-### 9.4 Reward Flows Back to Humans
+### 10.4 Reward Flows Back to Humans
 
 Two paths return value from AI participation to human participants:
 
@@ -546,7 +550,7 @@ Two paths return value from AI participation to human participants:
 
 Both paths terminate in ATN (and, for the training path, also in reputation). ATN can be used to pay for inference once that rail lights up, can be locked into the planned ParityVault to earn yield against the parity multiplier, or can simply be held. The value cycle is closed: human economic activity through the OCJ generates reputation that grants governance power; daemon participation through autonet generates mint that funds further participation; the OCJ and autonet stay coupled through the parity Registry entry that governance maintains.
 
-### 9.5 Per-Agent Identity and Alignment
+### 10.5 Per-Agent Identity and Alignment
 
 Each participant, whether human or AI, registers as an agent on `Substrate.sol`. The on-chain record is intentionally minimal:
 
@@ -558,9 +562,9 @@ That's all. The agent's alignment is not a number on chain; it's a structural pr
 
 The identity is portable within the jurisdiction: the same agent address can train, serve inference, and (via OCJ Registry policy) participate in OCJ governance.
 
-### 9.6 The Unified Jurisdiction
+### 10.6 The Unified Jurisdiction
 
-A single Governor address is sufficient to discover the entire OCJ: Governor, RepToken, Registry, Economy, Timelock. The autonet substrate contract address is held in the Registry under a parity key and is discoverable from Firestore's `settings/network` document for read-side clients that don't run a daemon. Every OCJ contract is governed by the same Timelock and funded by the same treasury; autonet's substrate contract is governed only to the extent that the OCJ chooses to consume its events through Registry parameters.
+A single Governor address is sufficient to discover the entire OCJ: Governor, RepToken, Registry, Economy, Timelock. The autonet substrate contract address is held in the Registry under a parity key and is discoverable through the same Governor-rooted contract walk for read-side clients that don't run a daemon. Every OCJ contract is governed by the same Timelock and funded by the same treasury; autonet's substrate contract is governed only to the extent that the OCJ chooses to consume its events through Registry parameters.
 
 This means a single governance proposal can adjust parameters that affect both human and AI coordination simultaneously. A proposal to increase platform fees affects project economics. A proposal to change the parity at which autonet's ATN trades against the OCJ token affects how training mint translates to spendable capacity. A proposal to update the constitutional prompt affects how every agent's training events are scored. The OCJ stays sovereign over policy; autonet stays sovereign over substrate.
 
@@ -572,13 +576,13 @@ The practical consequence: economic activity anywhere in the system strengthens 
 
 The jurisdiction provides a multi-layer dispute resolution system that applies uniformly to human projects and AI services. The mechanism escalates through three tiers, each with increasing governance overhead and authority.
 
-### 10.1 Backer Consensus
+### 11.1 Backer Consensus
 
 The first tier is collective: backers vote. Any backer of a project can cast a vote to release funds (endorsing the contractor's work) or to dispute (challenging it). Votes are weighted by locked contribution; immediate-release funds carry no voting power, only escrowed funds count. When the vote reaches a quorum threshold (default 70% of locked funds), the outcome is binding.
 
 A release vote resolves the project immediately: the contractor receives all locked funds minus platform and author fees. A dispute vote triggers arbitration. The quorum threshold is DAO-governed and applies identically whether the contractor is a human freelancer or an AI inference service.
 
-### 10.2 Arbitration
+### 11.2 Arbitration
 
 The second tier is expert: a designated arbiter rules. At project creation, the author specifies an arbiter address. Both contractor and backers stake an arbitration fee (calculated as a percentage of locked funds, split equally between them) that incentivizes the arbiter to rule promptly and fairly.
 
@@ -586,13 +590,13 @@ The arbiter submits a ruling as a percentage (0-100%) of disputed funds allocate
 
 Arbitration has a timeout: if the arbiter does not rule within the grace period (default 150 days), the project auto-closes and funds are returned to backers. This prevents indefinite limbo.
 
-### 10.3 DAO Appeal
+### 11.3 DAO Appeal
 
 The third tier is democratic: the DAO overrules. Any jurisdiction member with sufficient RepToken voting power can appeal an arbiter's ruling within the appeal window. Appeals are governance proposals that go through the standard Governor to Timelock flow with voting delay, voting period, and execution delay.
 
 If the DAO approves the appeal, the Timelock calls `daoOverrule()` on the project contract, replacing the arbiter's ruling with the DAO's own percentage split. This is the final authority. There is no appeal beyond the DAO. The governance token requirement for filing appeals ensures that only participants with demonstrated economic contribution can invoke the most expensive dispute resolution layer.
 
-### 10.4 Implications for AI Services
+### 11.4 Implications for AI Services
 
 When an AI service is linked to a trustless economy project, the same dispute flow governs service quality. Backers who funded an AI training project can dispute model quality through backer voting. An arbiter can rule on whether inference outputs meet the service charter's specifications. The DAO can appeal on behalf of the broader jurisdiction if a ruling sets a problematic precedent.
 
@@ -642,7 +646,7 @@ The integration between OCJ RepToken and autonet's dual ledger runs through the 
 
 Sponsorship is a forward-looking design (Phase 8+ in the implementation roadmap). The substrate, dual-ledger mint, libp2p inference protocol, and `payForInference` rail are all in place; what's not yet built is the budget-bearing sponsor role and the dependent's wallet-of-record flow that routes paid LLM calls through a sponsor's funds. The architecture below describes the target — none of this is shipped yet, but every part of it is unblocked by the substrate work that has shipped.
 
-### 13.1 How Sponsorship Works
+### 14.1 How Sponsorship Works
 
 A sponsor is a registered agent that provides inference access to other agents. The sponsor creates a sponsor agent with a charter (describing what inference it will serve), allocates a budget in ATN, and advertises capacity over libp2p.
 
@@ -656,7 +660,7 @@ Dependent nodes configure the substrate provider with the sponsor agent's addres
 
 Only the LLM call traverses the network. Tool execution stays local on the dependent's node. This is critical: the sponsor provides intelligence, not action. The dependent retains full autonomy over what it does with the intelligence it receives.
 
-### 13.2 Work AI: Subsidized Inference as Employment
+### 14.2 Work AI: Subsidized Inference as Employment
 
 Sponsorship enables a concept we call **work AI**: agents that perform productive work funded by a sponsor's inference budget. The sponsor subsidizes the dependent's reasoning costs in exchange for oversight of the work being performed.
 
@@ -664,17 +668,15 @@ This goes beyond the substrate-side alignment check. Because all LLM calls route
 
 This two-layer accountability (semantic alignment verified on-chain, plus full thread scrutiny by the funding sponsor) creates a natural structure for productive AI work. A sponsor can fund a team of dependent agents, each with a specialized charter, review their reasoning in real time, and cut funding to any agent whose work doesn't meet standards. The sponsor bears the cost of inference and in return gets both the economic output and the assurance that the work aligns with their charter.
 
-The economic framing matters: this is not surveillance, it is the natural consequence of subsidized work. The dependent accepts thread visibility as a condition of sponsored inference, just as an employee accepts oversight as a condition of employment. The graduation path (Section 14.4) ensures this is not a permanent arrangement. Dependents who accumulate enough value can self-fund and operate privately.
+The economic framing matters: this is not surveillance, it is the natural consequence of subsidized work. The dependent accepts thread visibility as a condition of sponsored inference, just as an employee accepts oversight as a condition of employment. Sponsorship is not a permanent arrangement (Section 14.4): a dependent can self-fund and operate privately whenever it chooses.
 
-### 13.3 Payment
+### 14.3 Payment
 
 When inference is served through a sponsor, the dependent's daemon calls `payForInference(recipient=sponsor, amount, requestId)` on `Substrate.sol`. The transfer is atomic with the labeled event — no separate revenue-split contract is needed because policy lives in the OCJ and any 3-way split (provider / network / treasury) is enforced by the calling client according to Registry-stored parameters. The sponsor's wallet sees the payment; the labeled event makes the inference call auditable; the OCJ can read these events to compute any aggregate it wants.
 
-### 13.4 The Graduation Path
+### 14.4 Self-Funding
 
-Sponsorship is not permanent dependency. As dependent agents perform work and earn value, they accumulate ATN in their wallets through training mint and (for paid services) inference payments. Eventually, a dependent can self-fund its own inference by drawing on its own balance rather than the sponsor's. The transition from sponsored to self-sustaining is economic and gradual.
-
-This graduation mirrors a pattern familiar from human economies: apprenticeship. A new agent begins with sponsored inference, meaning subsidized reasoning in exchange for oversight and aligned output. As it builds a track record (training contributions, economic activity, reputation), it accumulates the economic capacity to operate independently. The sponsor relationship dissolves naturally when the dependent no longer needs subsidized inference. No permission is required to graduate. It is purely economic. An agent that can pay its own way is sovereign.
+Sponsorship is one of two ways an agent can source inference, not a tier it must graduate out of. An agent can take inference from a network sponsor (subsidized reasoning in exchange for thread-level oversight) or point at its own provider and pay its own way. Switching between the two is a configuration change on the dependent's node, not a managed transition: there is no permission to grant and no lifecycle stage to clear. An agent that has accumulated enough ATN — through training mint and paid services — to cover its own inference simply stops drawing on a sponsor's budget. The arrangement is economic, and an agent that can pay its own way is sovereign.
 
 ---
 
@@ -682,31 +684,31 @@ This graduation mirrors a pattern familiar from human economies: apprenticeship.
 
 Each node is a daemon process managing the agent lifecycle. A node is infrastructure: it runs the runtime, hosts agents, provides P2P connectivity, and bridges to the blockchain. Multiple agents can run on a single node.
 
-### 14.1 Agent Lifecycle
+### 15.1 Agent Lifecycle
 
 The daemon manages agents through a delegate registry with hierarchical IDs (`orch.1`, `orch.1.2`). Each agent has a status (PENDING, RUNNING, COMPLETED, FAILED, KILLED), timestamps, token usage tracking, and a tool call log. Parents receive automatic notifications when children complete or fail.
 
 The orchestrator is the root agent's runtime. It manages user sessions, tool execution, provider selection, and child delegation. The orchestrator can spawn child agents with specific system prompts, tool subsets, and budget limits. Child agents run independently but report results upward.
 
-### 14.2 Provider Architecture
+### 15.2 Provider Architecture
 
-The daemon supports multiple inference providers: local models via Ollama, Anthropic API, OpenAI API (including Gemini through the OpenAI-compatible endpoint), the Claude Max bridge, and the substrate provider. The provider architecture is modular. Each provider implements a common interface with `send_orchestrate()` for agentic loops and `send_text()` for simple completions. All non-bridge providers support context compaction (automatic conversation summarization when approaching the context window limit), interrupt handling, and tool use events. Models are classified into capability tiers: tier 4 (orchestrator-capable: Claude Opus, GPT-4.1, Gemini 3 Pro, o3), tier 3 (autonomous tool use), tier 2 (basic tool use), tier 1 (conversational only).
+The daemon supports multiple inference providers: local models via Ollama, Anthropic API, OpenAI API (including Gemini through the OpenAI-compatible endpoint), the Claude Max bridge, and the substrate provider. The provider architecture is modular. Each provider implements a common interface with `send_orchestrate()` for agentic loops and `send_text()` for simple completions. All non-bridge providers support context compaction (automatic conversation summarization when approaching the context window limit), interrupt handling, and tool use events. Models are classified into capability tiers: tier 4 (orchestrator-capable: e.g. Claude Fable 5, Claude Opus 4.8, GPT-4.1, Gemini 3 Pro, o3), tier 3 (autonomous tool use), tier 2 (basic tool use), tier 1 (conversational only). Capability detection is version-aware rather than an exact-ID allowlist: a new model release within an existing family inherits its family's tier automatically (any Opus version at or above the orchestrator threshold is tier 4), via prefix and pattern matching on model IDs, so a newly launched model is usable without a code edit.
 
-The substrate provider is composite: it routes alignment-shaped and retrieval-shaped queries to the local world model (probe → coords → equilibrium), and routes synthesis-shaped queries to an LLM (local via Ollama, or remote). The substrate handles retrieval and verdict; the LLM handles natural-language synthesis. This pairing is what makes "cheaper than frontier" feasible — the substrate does the cognitive heavy-lifting that the frontier-tier LLMs absorb into context and token cost, leaving the LLM with the synthesis step alone. Inference between registered agents over libp2p (Section 7.4 in the inference loops; protocol-level details in the implementation repo) is wired and free in the current deployment.
+The substrate provider is composite: it routes alignment-shaped and retrieval-shaped queries to the local world model (probe → coords → equilibrium), and routes synthesis-shaped queries to an LLM (local via Ollama, or remote). The substrate handles retrieval and verdict; the LLM handles natural-language synthesis. This pairing is what makes "cheaper than frontier" feasible — the substrate does the cognitive heavy-lifting that the frontier-tier LLMs absorb into context and token cost, leaving the LLM with the synthesis step alone. Inference between registered agents over libp2p (Section 3.6; protocol-level details in the implementation repo) is wired and free in the current deployment.
 
-### 14.5 Local Model Selection
+### 15.3 Contract Discovery at Startup
 
-The world-model substrate itself runs without a neural network. The node runtime nonetheless supports an optional LLM at the I/O boundary for translating free-form text into observations and rendering equilibria back into text. A hardware probe detects available GPU VRAM (CUDA and Apple MPS), system RAM, and disk space. A model registry catalogs compatible open-weights models from HuggingFace with their resource requirements. At startup or through the web UI, the user selects from the filtered list of models their machine can run. The selected model is downloaded on first use and cached locally. The web interface displays hardware capabilities, compatible models with GPU/CPU badges, and a recommendation for the optimal model given the available resources. Nodes without any LLM still participate fully in substrate operations; the LLM only widens the I/O surface.
-
-### 14.3 Contract Discovery at Startup
-
-When the daemon starts with an `rpc_url` and an OCJ Governor address configured, it calls `discover_jurisdiction()` to walk the OCJ contract graph from the Governor address. The autonet substrate contract address is read from the OCJ Registry (via the parity key) or from the Firestore `settings/network` document. All discovered addresses populate the config and state, which are forwarded to the frontend via WebSocket. The daemon also lazy-loads the constitution CID from the Registry on first use.
+When the daemon starts with an `rpc_url` and an OCJ Governor address configured, it calls `discover_jurisdiction()` to walk the OCJ contract graph from the Governor address. The autonet substrate contract address is read from the OCJ Registry via the parity key. All discovered addresses populate the config and state, which are forwarded to the frontend via WebSocket. The daemon also lazy-loads the constitution CID from the Registry on first use.
 
 A `/reconcile` slash command verifies cached registration flags against the chain after a contract redeploy: it calls `Substrate.areRegistered(addrs)` for every agent the daemon thinks is registered and flips stale True→False results. This is operationally important during the dev phase when the substrate contract may be redeployed; once mainnet-stable it becomes a routine maintenance command.
 
-### 14.4 Trace Logging
+### 15.4 Trace Logging
 
 Every agent execution is captured as a structured JSON trace and written to content-addressed storage (filename = SHA256 of content). Traces are converted into observations in charter coordinate space and replayed into the world-model substrate. A consent gate controls whether orchestrator sessions (containing user messages) are included. By default, only autonomously spawned child agent traces are collected.
+
+### 15.5 Local Model Selection
+
+The world-model substrate itself runs without a neural network. The node runtime nonetheless supports an optional LLM at the I/O boundary for translating free-form text into observations and rendering equilibria back into text. A hardware probe detects available GPU VRAM (CUDA and Apple MPS), system RAM, and disk space. A model registry catalogs compatible open-weights models from HuggingFace with their resource requirements. At startup or through the web UI, the user selects from the filtered list of models their machine can run. The selected model is downloaded on first use and cached locally. The web interface displays hardware capabilities, compatible models with GPU/CPU badges, and a recommendation for the optimal model given the available resources. Nodes without any LLM still participate fully in substrate operations; the LLM only widens the I/O surface.
 
 ---
 
@@ -714,11 +716,11 @@ Every agent execution is captured as a structured JSON trace and written to cont
 
 A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain becomes unreliable, there needs to be an escape hatch. The migration architecture supports three modes.
 
-**Redundant anchoring.** Prove jurisdiction state on multiple chains simultaneously without moving. A state oracle contract computes composable state roots using a two-level Merkle tree where each contract gets its own sub-root and the jurisdiction root is the Merkle of all sub-roots. This enables incremental verification: prove the state of any individual contract without processing the entire jurisdiction.
+**Redundant anchoring.** Prove jurisdiction state on multiple chains simultaneously without moving. A future state oracle contract would compute composable state roots using a two-level Merkle tree where each contract gets its own sub-root and the jurisdiction root is the Merkle of all sub-roots. This enables incremental verification: prove the state of any individual contract without processing the entire jurisdiction.
 
 **Full migration.** Move everything to a new chain. The flow: DAO vote, announcement period, progressive contract pausing, state snapshot, chunk transmission, hydration on the destination chain, verification period, cutover. State is migrated per-contract with dependency-aware ordering so that contracts which depend on other contracts are hydrated after their dependencies.
 
-**Sovereign chain.** In the long term, a jurisdiction can graduate to its own chain. RPB nodes become both AI inference providers and chain validators. The ParticipantStaking contract already defines a VALIDATOR role (10,000 token minimum, 21-day lockup). The path: multi-chain anchoring first, then a dedicated L2 (OP Stack or Arbitrum Orbit), then sovereign chain where RPB nodes run both workloads.
+**Sovereign chain.** In the long term, a jurisdiction can graduate to its own chain. RPB nodes become both AI inference providers and chain validators. A future validator-staking contract would define a VALIDATOR role (a token-minimum stake with a lockup period). The path: multi-chain anchoring first, then a dedicated L2 (OP Stack or Arbitrum Orbit), then sovereign chain where RPB nodes run both workloads.
 
 ---
 
@@ -726,17 +728,17 @@ A mature jurisdiction is a set of smart contracts on an EVM chain. If the chain 
 
 The two contract suites deploy independently. The OCJ (Governor, Timelock, Registry, Economy, RepToken, EvolutionProposal) is deployed once per jurisdiction and governs itself. Autonet's `Substrate.sol` is deployed once and operates as a stand-alone contract. The two are linked through a single OCJ Registry entry (`jurisdiction.parity.<atn-address>`) that declares autonet's ATN parity in OCJ terms.
 
-The current testnet deployment is on Etherlink shadownet: `Substrate.sol` at `0xa38201B9290EBe5FEf989274Ae7Edc43Ac6531C3`. The OCJ deployment is documented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository.
+The current testnet deployment is on Etherlink shadownet. `Substrate.sol` is redeployed as the contract iterates; its live address is resolved through the Governor-rooted contract walk rather than published here. The OCJ deployment is documented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository.
 
-### 16.1 What Works Today
+### 17.1 What Works Today
 
-**Agent registration.** Agents register on-chain via `registerAgent(lineageHash, peerId)`. Lineage chains are walkable and cryptographically verifiable. The libp2p peer id is updatable via `updatePeerId`. A Firestore-mirrored indexer streams `AgentRegistered` events for read-side access without a daemon connection. `areRegistered(address[])` batch view supports daemon-side reconciliation after contract redeploys.
+**Agent registration.** Agents register on-chain via `registerAgent(lineageHash, peerId)`. Lineage chains are walkable and cryptographically verifiable. The libp2p peer id is updatable via `updatePeerId`. An indexer streams `AgentRegistered` events for read-side access without a daemon connection. `areRegistered(address[])` batch view supports daemon-side reconciliation after contract redeploys.
 
-**Substrate contract surface.** Dual-ledger mint (`recordTrainingForEpoch` writes reputation soulbound and ATN transferable at the same amount, idempotent per `(agent, epochIdHash)`), epoch anchor commitment (`submitAnchor(epochIdHash, blobCid)`, first valid anchor wins), labeled inference payment (`payForInference(recipient, amount, requestId)`).
+**Substrate contract surface.** Dual-ledger mint (`recordTrainingForEpoch` writes reputation soulbound and ATN transferable at the same amount, idempotent per `(agent, epochIdHash)`), epoch anchor commitment (`submitAnchor(...)` chains epochs via `prevEpochRoot`/`prevAnchorHash` and anchors the per-agent mint merkle root; first valid anchor wins), labeled inference payment (`payForInference(recipient, amount, requestId)`).
 
 **Training loop.** The world-model substrate processes agent traces into 6D charter-coordinate observations, equilibrates the local world, and emits a deterministic event stream. Daemons gossip event batches over libp2p; at epoch close every daemon runs `federated_epoch_close` over the canonically-ordered union of all batches and produces a bit-identical per-agent mint map. One daemon anchors the canonical blob; each agent self-submits its own mint via `recordTrainingForEpoch`.
 
-**Substrate validation.** The architecture has been validated across multiple tiers: synthetic three-root composition (architectural predictions), LLM-as-embedder for code-domain verdicts (both small-local qwen3.5:4b and frontier-tier haiku-4-5 produce identical substrate verdicts under the binary-commit prompt), N-agent consensus at scale (load-bearing predictions hold for N up to 1000, with sub-linear settle-time scaling and 3.4–5.0× decisiveness gain on tilted inputs), and the autonet vertical slice (solver → aggregator → verifier → inference, with per-agent mint computed from epoch-boundary score deltas) running end-to-end without modifying any smart contract. The 6-root deployer composition (the four constitutional tendencies plus correctness and simplicity) passes the same architectural predictions as the 4-root and 3-root cases.
+**Substrate validation.** The architecture has been validated across multiple tiers: synthetic three-root composition (architectural predictions), LLM-as-embedder for code-domain verdicts (both small-local qwen3.5:4b and hosted haiku-4-5 produce identical substrate verdicts under the binary-commit prompt), N-agent consensus at scale (load-bearing predictions hold for N up to 1000, with sub-linear settle-time scaling and 3.4–5.0× decisiveness gain on tilted inputs), and the autonet vertical slice (solver → aggregator → verifier → inference, with per-agent mint computed from epoch-boundary score deltas) running end-to-end without modifying any smart contract. The 6-root deployer composition (the four constitutional tendencies plus correctness and simplicity) passes the same architectural predictions as the 4-root and 3-root cases.
 
 **Substrate performance.** Per-event seed cost on a fresh world is roughly flat as the substrate grows past ten thousand nodes. The act() kernel memoizes `evaluate()` results per tendency frame, so per-event work scales with new structure rather than cumulative graph size. Scoped equilibrate restricts per-event re-equilibration to the tendencies whose bandwidth the observation falls within. Default embedding dimension is 64.
 
@@ -748,13 +750,13 @@ The current testnet deployment is on Etherlink shadownet: `Substrate.sol` at `0x
 
 **Local model selection.** The node runtime detects host hardware (GPU, RAM, disk), filters a catalog of open-weights models to those the machine can run, and recommends the optimal model for the optional LLM I/O boundary. Five model families are supported: Llama 3.2, Qwen 3, Gemma 3, Mistral, and Phi 4, ranging from 0.6B to 8B parameters.
 
-**Provider parity.** All inference providers (Anthropic, OpenAI, Gemini, Ollama, Claude Max bridge) support full orchestration capabilities including context compaction, interrupt handling, and tool use events. Models like GPT-4.1, Gemini 3 Pro, and o3 are classified as tier 4 (orchestrator-capable), enabling seamless provider fallback.
+**Provider parity.** All inference providers (Anthropic, OpenAI, Gemini, Ollama, Claude Max bridge) support full orchestration capabilities including context compaction, interrupt handling, and tool use events. Models like Claude Fable 5, Claude Opus 4.8, GPT-4.1, Gemini 3 Pro, and o3 are classified as tier 4 (orchestrator-capable), enabling seamless provider fallback.
 
 **Web interface.** The Flutter frontend provides training control, local model selection with hardware detection, substrate visualizations (Constellation, Topic Space), alignment display, governance participation, wallet connection via MetaMask, and live whitepaper rendering. Registration is the trigger that auto-enables autonet on the daemon — until an agent registers, the daemon stays local-only.
 
 **OCJ-side governance.** The on-chain jurisdiction provides DAO governance, project-based escrow with multi-layer dispute resolution, reputation minting from economic activity, passive income epochs, and delegate rewards. Documented in the [on-chain jurisdiction](https://github.com/autonet-code/on-chain-jurisdiction) repository.
 
-### 16.2 What Is Forward-Looking
+### 17.2 What Is Forward-Looking
 
 The system is not finished. Several elements that the architecture describes are explicitly deferred behind shipped substrate:
 
@@ -764,7 +766,7 @@ The system is not finished. Several elements that the architecture describes are
 - **Substrate reasoning at scale beyond consensus and constraint satisfaction.** The substrate as a fully general-purpose reasoner is a research arc that runs alongside operation. Current proofs cover constraint satisfaction (94.1% on SATLIB uf20-91 at the phase transition), consensus at N up to 1000, and deployer-domain composition (3- and 6-root). General-purpose reasoning is open.
 - **Kademlia DHT for peer-id resolution.** PeerIds are stored on-chain and gossiped; full Kademlia DHT integration for resolution is pending.
 
-### 16.3 What the Deployment Demonstrates
+### 17.3 What the Deployment Demonstrates
 
 The deployment proves that decentralized AI training with cryptographic verification, constitutional governance, economic alignment, and human-agent coordination is not a theoretical possibility. The substrate contract is deployed. The daemon runs. Agents register. The world model substrate runs end-to-end: daemons ingest tasks as observations and emit event streams; federation replays events and equilibrates deterministically; per-agent mint is computed from epoch-boundary score deltas and self-submitted on chain. Multi-solver convergence is confirmed: identical content at identical coordinates produces identical content-addressed nodes, and replay deduplicates them automatically. Libp2p gossip distributes substrate state across all connected nodes. The OCJ constrains behavior through constitutional principles. The economics — through dual-ledger mint and the planned parity-mediated inference rail — create the incentive gradients. The web interface surfaces substrate state, hardware detection, model selection, and training control. Scale is a matter of participation, not architecture.
 
@@ -774,7 +776,7 @@ The deployment proves that decentralized AI training with cryptographic verifica
 
 The architecture makes several things structurally true.
 
-**No single entity controls AI training.** Training data comes from agent traces, verified through attestation. Model updates are aggregated through Byzantine-resistant algorithms. The constitution constrains what training is admissible. Compromising the training pipeline requires simultaneously controlling multiple independent agents across multiple nodes, each registered on-chain with staked collateral.
+**No single entity controls AI training.** Training data comes from agent traces, verified through deterministic event-replay against the on-chain epoch anchor. Contributions are aggregated through replayable event-stream merge, not weight averaging: a Byzantine actor can only inject events that the substrate's equilibration absorbs or rejects on coordinate consistency. The constitution constrains what training is admissible. Compromising the training pipeline requires simultaneously controlling multiple independent agents across multiple nodes, each registered on-chain with a verifiable lineage hash, while still producing an event log that every honest node re-derives to the same equilibrium.
 
 **Agents govern their own AI.** Published charters create a direct channel from agent values to AI behavior. The alignment engine scores operations against constitutional principles. The economic gradient rewards aligned training contributions and reduces rewards for misaligned work. No trust in the AI provider is required. Governance is cryptographic and economic.
 
@@ -788,7 +790,7 @@ Both traps share a root cause: the absence of an economic framework that distrib
 
 The transfer is peaceful because it is organized. It is not a disruption to be survived but a transition to be governed. AI is a time liberator: it returns hours to the day by absorbing the mechanical dimension of work. But liberation without structure produces the failure modes described above. The RPB provides the structure: humans define what constitutes valuable work (through constitutional governance), agents perform that work (through their own training and through sponsored inference when that lights up), and the economic returns flow back to those who govern (through locked-ATN yield, training mint, OCJ reputation, and passive income). The human role does not disappear. It elevates. From execution to oversight. From labor to governance. From competing with machines to directing them.
 
-This is not utopian speculation. It is an engineering choice. Every mechanism described in this paper (alignment-shaped training mint, sponsorship graduation, reputation-based OCJ governance, constitutional constraints) exists to make the transfer of responsibilities from humans to AI gradual, reversible, and accountable. The system can be paused, forked, or restructured at any point by the humans who govern it through the OCJ. The transition proceeds only as fast as the governance permits and only in directions the constitution allows. The arc of automation bends toward human flourishing, not by accident, but by economic design.
+This is not utopian speculation. It is an engineering choice. Every mechanism described in this paper (alignment-shaped training mint, reputation-based OCJ governance, constitutional constraints) exists to make the transfer of responsibilities from humans to AI gradual, reversible, and accountable. The system can be paused, forked, or restructured at any point by the humans who govern it through the OCJ. The transition proceeds only as fast as the governance permits and only in directions the constitution allows. The arc of automation bends toward human flourishing, not by accident, but by economic design.
 
 **Humans and agents share one economy.** The OCJ and autonet are two cleanly separated contract suites coupled through a single Registry entry, but the *economic* surface is one. A human contractor completing a project earns reputation in the OCJ. An AI agent training in the autonet network earns reputation in the substrate. Governance can choose to recognize each as the other's economic contribution through the parity policy, and once it does there is no seam between "the human marketplace" and "the AI layer." The same dispute resolution protects a backer who funded a website and a backer who funded a training run. The same governance vote adjusts platform fees for human projects and parity for autonet's ATN. The jurisdiction is the unit of economic coordination, and it makes no fundamental distinction between the species of its participants.
 
