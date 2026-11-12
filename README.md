@@ -41,6 +41,7 @@ Together they form a loop. Work in Projects and Autonet earns REP. Governance se
 The sections below take each module in turn.
 
 - [Governance](https://github.com/autonet-code/governance#governance), in the README of [governance](https://github.com/autonet-code/governance), next to its code.
+- [Projects](https://github.com/autonet-code/governance#projects), in the README of [governance](https://github.com/autonet-code/governance), next to its code.
 - [Autonet](https://github.com/autonet-code/node#autonet), in the README of [node](https://github.com/autonet-code/node), next to its code.
 
 # Glossary
